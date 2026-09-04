@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 15px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; font-size: 20px; }
+        .alert-box { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; text-align: center; font-size: 14px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .section { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .section h3 { font-size: 16px; margin-top: 0; color: #2c3e50; }
+        ul { padding-left: 20px; font-size: 13px; color: #555; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .score-btn { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background: white; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .score-btn.selected { background: #007bff; color: white; border-color: #0056b3; }
+        textarea { width: 100%; height: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; resize: none; }
+        .submit-btn { width: 100%; background: #28a745; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ประเมินความพึงพอใจ<br>ห้องน้ำสาธารณะ กทม.</h2>
+        
+        <div id="gpsStatus" class="alert-box danger">กำลังตรวจสอบพิกัด GPS...</div>
+        
+        <div id="locationInfo" class="section" style="display:none;">
+            <p>📍 <strong>สถานที่:</strong> <span id="locationName">-</span></p>
+            <p>🏛️ <strong>เขต:</strong> <span id="locationDistrict">-</span></p>
+        </div>
+
+        <!-- 1. ด้านความสะอาด -->
+        <div class="section">
+            <h3>1. ด้านความสะอาด (Healthy)</h3>
+            <ul>
+                <li>ความสะอาดของห้องน้ำ</li>
+                <li>อุปกรณ์ครบและใช้งานได้ดี (กระดาษ, สบู่, น้ำ)</li>
+                <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
+            </ul>
+            <div class="btn-group">
+                <button type="button" class="score-btn" onclick="setScore('healthy', 'พอใจมาก', this)">🟢 พอใจมาก (10)</button>
+                <button type="button" class="score-btn" onclick="setScore('healthy', 'ปานกลาง', this)">🟡 ปานกลาง (5)</button>
+                <button type="button" class="score-btn" onclick="setScore('healthy', 'ควรปรับปรุง', this)">🔴 ควรปรับปรุง (0)</button>
+            </div>
+        </div>
+
+        <!-- 2. ด้านความปลอดภัย -->
+        <div class="section">
+            <h3>2. ด้านความปลอดภัย (Safety)</h3>
+            <ul>
+                <li>มีแสงสว่างเพียงพอ</li>
+                <li>พื้นห้องน้ำแห้ง</li>
+                <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
+            </ul>
+            <div class="btn-group">
+                <button type="button" class="score-btn" onclick="setScore('safety', 'พอใจมาก', this)">🟢 พอใจมาก (10)</button>
+                <button type="button" class="score-btn" onclick="setScore('safety', 'ปานกลาง', this)">🟡 ปานกลาง (5)</button>
+                <button type="button" class="score-btn" onclick="setScore('safety', 'ควรปรับปรุง', this)">🔴 ควรปรับปรุง (0)</button>
+            </div>
+        </div>
+
+        <!-- ข้อเสนอแนะ -->
+        <div class="section">
+            <h3>ข้อเสนอแนะเพิ่มเติม</h3>
+            <textarea id="suggestion" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
+        </div>
+
+        <button id="submitBtn" class="submit-btn" disabled onclick="submitEvaluation()">ส่งแบบประเมิน</button>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzNO-kt_xbIW2ZB5DARCqaTShTC0tYf0Bl_HPLPadIZkDGRwEpp7iQUQTmwnBPzQgjKbA/exec";
+        
+        let currentData = {
+            locationId: "BMA-001", 
+            name: "",
+            district: "",
+            targetLat: 0,
+            targetLng: 0,
+            healthyScore: "",
+            safetyScore: "",
+            deviceId: getOrCreateDeviceId()
+        };
+
+        function getOrCreateDeviceId() {
+            let id = localStorage.getItem("bma_device_id");
+            if (!id) {
+                id = 'DEV-' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+                localStorage.setItem("bma_device_id", id);
+            }
+            return id;
+        }
+
+        fetch(WEB_APP_URL)
+            .then(res => res.json())
+            .then(locations => {
+                const target = locations.find(l => l.id === currentData.locationId) || locations[0];
+                if (target) {
+                    currentData.locationId = target.id;
+                    currentData.name = target.name;
+                    currentData.district = target.district;
+                    currentData.targetLat = parseFloat(target.lat);
+                    currentData.targetLng = parseFloat(target.lng);
+
+                    document.getElementById("locationName").innerText = target.name;
+                    document.getElementById("locationDistrict").innerText = target.district;
+                    document.getElementById("locationInfo").style.display = "block";
+                    
+                    checkGPS();
+                }
+            })
+            .catch(err => {
+                document.getElementById("gpsStatus").innerText = "❌ โหลดข้อมูลสถานที่จากชีทไม่สำเร็จ";
+            });
+
+        function checkGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    
+                    const dist = calculateDistance(userLat, userLng, currentData.targetLat, currentData.targetLng);
+
+                    if (dist <= 100) {
+                        document.getElementById("gpsStatus").className = "alert-box success";
+                        document.getElementById("gpsStatus").innerHTML = "✅ จับพิกัดตำแหน่งถูกต้อง (อยู่ในพื้นที่จริง)";
+                        checkFormReady();
+                    } else {
+                        document.getElementById("gpsStatus").className = "alert-box danger";
+                        document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุดประเมิน ${Math.round(dist)} เมตร (ต้องเข้าใกล้กว่า 100 ม.)`;
+                    }
+                }, error => {
+                    document.getElementById("gpsStatus").innerHTML = "❌ กรุณาเปิดใช้งาน GPS บนมือถือเพื่อยืนยันตัวตน";
+                }, { enableHighAccuracy: true });
+            } else {
+                document.getElementById("gpsStatus").innerHTML = "❌ เบราว์เซอร์ไม่รองรับการระบุพิกัด";
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+        }
+
+        function setScore(type, score, btn) {
+            btn.parentElement.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            if(type === 'healthy') currentData.healthyScore = score;
+            if(type === 'safety') currentData.safetyScore = score;
+            checkFormReady();
+        }
+
+        function checkFormReady() {
+            if (currentData.healthyScore && currentData.safetyScore) {
+                document.getElementById("submitBtn").disabled = false;
+            }
+        }
+
+        function submitEvaluation() {
+            document.getElementById("submitBtn").disabled = true;
+            document.getElementById("submitBtn").innerText = "กำลังส่งข้อมูล...";
+            currentData.suggestion = document.getElementById("suggestion").value;
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(currentData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert("🎉 ส่งแบบประเมินเรียบร้อยแล้ว!");
+                location.reload();
+            })
+            .catch(err => {
+                alert("เกิดข้อผิดพลาด: " + err);
+                document.getElementById("submitBtn").disabled = false;
+                document.getElementById("submitBtn").innerText = "ส่งแบบประเมิน";
+            });
+        }
+    </script>
+</body>
+</html>
