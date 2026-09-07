@@ -20,18 +20,20 @@
         textarea { width: 100%; height: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; resize: none; }
         .submit-btn { width: 100%; background: #28a745; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .update-gps-btn { background: #17a2b8; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>ประเมินความพึงพอใจ<br>ห้องน้ำสาธารณะ กทม.</h2>
+        <h2>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
         
-        <div id="gpsStatus" class="alert-box danger">กำลังค้นหาตำแหน่งห้องน้ำใกล้คุณ...</div>
+        <div id="gpsStatus" class="alert-box danger">กำลังตรวจสอบ GPS...</div>
         
         <div id="locationInfo" class="section" style="display:none;">
             <p>📍 <strong>สถานที่:</strong> <span id="locationName">-</span></p>
             <p>🏛️ <strong>เขต:</strong> <span id="locationDistrict">-</span></p>
-            <p style="font-size: 12px; color: #666; margin-top: 5px;">📏 ระยะห่างจากจุดประเมิน: <span id="distanceText">-</span></p>
+            <p style="font-size: 12px; color: #666; margin-top: 5px;">📏 ระยะห่างจากจุดอ้างอิง: <span id="distanceText">-</span></p>
+            <button type="button" class="update-gps-btn" onclick="refreshGPS()">🔄 อัปเดตพิกัด GPS</button>
         </div>
 
         <!-- 1. ด้านความสะอาด -->
@@ -96,66 +98,74 @@
             return id;
         }
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-                
-                fetch(WEB_APP_URL)
-                    .then(res => res.json())
-                    .then(locations => {
-                        if (!locations || locations.length === 0) {
-                            document.getElementById("gpsStatus").innerText = "❌ ไม่พบข้อมูลสถานที่ในระบบ";
-                            return;
-                        }
+        function refreshGPS() {
+            document.getElementById("gpsStatus").className = "alert-box danger";
+            document.getElementById("gpsStatus").innerText = "กำลังรีเฟรชตำแหน่ง GPS...";
+            getLocation();
+        }
 
-                        let nearest = null;
-                        let minDistance = Infinity;
-
-                        locations.forEach(loc => {
-                            const lLat = parseFloat(loc.lat);
-                            const lLng = parseFloat(loc.lng);
-                            const dist = calculateDistance(userLat, userLng, lLat, lLng);
-                            
-                            if (dist < minDistance) {
-                                minDistance = dist;
-                                nearest = loc;
-                                nearest.calculatedDist = dist;
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    
+                    fetch(WEB_APP_URL)
+                        .then(res => res.json())
+                        .then(locations => {
+                            if (!locations || locations.length === 0) {
+                                document.getElementById("gpsStatus").innerText = "❌ ไม่พบข้อมูลสถานที่ในระบบ";
+                                return;
                             }
+
+                            let nearest = null;
+                            let minDistance = Infinity;
+
+                            locations.forEach(loc => {
+                                const lLat = parseFloat(loc.lat);
+                                const lLng = parseFloat(loc.lng);
+                                const dist = calculateDistance(userLat, userLng, lLat, lLng);
+                                
+                                if (dist < minDistance) {
+                                    minDistance = dist;
+                                    nearest = loc;
+                                    nearest.calculatedDist = dist;
+                                }
+                            });
+
+                            if (nearest) {
+                                currentData.locationId = nearest.id;
+                                currentData.name = nearest.name;
+                                currentData.district = nearest.district;
+                                currentData.targetLat = parseFloat(nearest.lat);
+                                currentData.targetLng = parseFloat(nearest.lng);
+
+                                document.getElementById("locationName").innerText = nearest.name;
+                                document.getElementById("locationDistrict").innerText = nearest.district;
+                                document.getElementById("distanceText").innerText = `${Math.round(nearest.calculatedDist)} เมตร`;
+                                document.getElementById("locationInfo").style.display = "block";
+
+                                if (nearest.calculatedDist <= 100) {
+                                    document.getElementById("gpsStatus").className = "alert-box success";
+                                    document.getElementById("gpsStatus").innerHTML = `✅ ตรวจสอบ GPS ผ่าน`;
+                                    checkFormReady();
+                                } else {
+                                    document.getElementById("gpsStatus").className = "alert-box danger";
+                                    document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุดประเมิน ${Math.round(nearest.calculatedDist)} เมตร (ต้องอยู่ในรัศมี 100 เมตร)`;
+                                    document.getElementById("submitBtn").disabled = true;
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            document.getElementById("gpsStatus").innerText = "❌ โหลดข้อมูลสถานที่จากชีทไม่สำเร็จ";
                         });
 
-                        if (nearest) {
-                            currentData.locationId = nearest.id;
-                            currentData.name = nearest.name;
-                            currentData.district = nearest.district;
-                            currentData.targetLat = parseFloat(nearest.lat);
-                            currentData.targetLng = parseFloat(nearest.lng);
-
-                            document.getElementById("locationName").innerText = nearest.name;
-                            document.getElementById("locationDistrict").innerText = nearest.district;
-                            document.getElementById("distanceText").innerText = `${Math.round(nearest.calculatedDist)} เมตร`;
-                            document.getElementById("locationInfo").style.display = "block";
-
-                            // ล็อกเงื่อนไข: ต้องอยู่ในรัศมี 100 เมตรเท่านั้น ถึงจะอนุญาตให้ประเมินได้
-                            if (nearest.calculatedDist <= 100) {
-                                document.getElementById("gpsStatus").className = "alert-box success";
-                                document.getElementById("gpsStatus").innerHTML = `✅ อยู่ในพื้นที่จุดประเมินจริง`;
-                                checkFormReady();
-                            } else {
-                                document.getElementById("gpsStatus").className = "alert-box danger";
-                                document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุด "${nearest.name}" ประมาณ ${Math.round(nearest.calculatedDist)} เมตร (ต้องเข้าใกล้กว่า 100 ม.)`;
-                            }
-                        }
-                    })
-                    .catch(err => {
-                        document.getElementById("gpsStatus").innerText = "❌ โหลดข้อมูลสถานที่จากชีทไม่สำเร็จ";
-                    });
-
-            }, error => {
-                document.getElementById("gpsStatus").innerHTML = "❌ กรุณาเปิดใช้งาน GPS บนมือถือเพื่อระบุตำแหน่ง";
-            }, { enableHighAccuracy: true });
-        } else {
-            document.getElementById("gpsStatus").innerHTML = "❌ เบราว์เซอร์ไม่รองรับการระบุพิกัด";
+                }, error => {
+                    document.getElementById("gpsStatus").innerHTML = "❌ กรุณาเปิดใช้งาน GPS บนมือถือเพื่อระบุตำแหน่ง";
+                }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            } else {
+                document.getElementById("gpsStatus").innerHTML = "❌ เบราว์เซอร์ไม่รองรับการระบุพิกัด";
+            }
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -177,8 +187,8 @@
         }
 
         function checkFormReady() {
-            // จะปลดล็อกปุ่มส่งก็ต่อเมื่อ ให้คะแนนครบ และอยู่ในระยะ <= 100 เมตรเท่านั้น
-            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId) {
+            let distance = parseFloat(document.getElementById("distanceText").innerText) || 999;
+            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId && distance <= 100) {
                 document.getElementById("submitBtn").disabled = false;
             }
         }
@@ -203,6 +213,9 @@
                 document.getElementById("submitBtn").innerText = "ส่งแบบประเมิน";
             });
         }
+
+        // เริ่มต้นทำงานทันทีเมื่อเปิดหน้าเว็บ
+        getLocation();
     </script>
 </body>
 </html>
