@@ -96,13 +96,11 @@
             return id;
         }
 
-        // เริ่มต้นด้วยการขอพิกัด GPS จากมือถือผู้ใช้งานทันที
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(position => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
                 
-                // ดึงข้อมูลห้องน้ำทั้งหมดจาก Google Sheets มาเทียบหาจุดที่ใกล้ที่สุด
                 fetch(WEB_APP_URL)
                     .then(res => res.json())
                     .then(locations => {
@@ -111,7 +109,6 @@
                             return;
                         }
 
-                        // วนลูปหาว่าห้องน้ำจุดไหนในชีท อยู่ใกล้พิกัดที่ยืนอยู่ที่สุด
                         let nearest = null;
                         let minDistance = Infinity;
 
@@ -139,15 +136,10 @@
                             document.getElementById("distanceText").innerText = `${Math.round(nearest.calculatedDist)} เมตร`;
                             document.getElementById("locationInfo").style.display = "block";
 
-                            // เช็คว่าอยู่ใกล้ในรัศมี 100 เมตรหรือไม่
-                            if (nearest.calculatedDist <= 100) {
-                                document.getElementById("gpsStatus").className = "alert-box success";
-                                document.getElementById("gpsStatus").innerHTML = `✅ อยู่ในพื้นที่จุดประเมินจริง`;
-                                checkFormReady();
-                            } else {
-                                document.getElementById("gpsStatus").className = "alert-box danger";
-                                document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุด "${nearest.name}" ประมาณ ${Math.round(nearest.calculatedDist)} เมตร (ต้องเข้าใกล้กว่า 100 ม.)`;
-                            }
+                            // ปลดล็อกให้ส่งข้อมูลได้ทันทีทุกระยะ พร้อมแสดงสถานะสถานที่ใกล้ที่สุด
+                            document.getElementById("gpsStatus").className = "alert-box success";
+                            document.getElementById("gpsStatus").innerHTML = `✅ กำหนดจุดประเมิน: ${nearest.name} (ห่างประมาณ ${Math.round(nearest.calculatedDist)} ม.)`;
+                            checkFormReady();
                         }
                     })
                     .catch(err => {
@@ -180,7 +172,7 @@
         }
 
         function checkFormReady() {
-            if (currentData.healthyScore && currentData.safetyScore) {
+            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId) {
                 document.getElementById("submitBtn").disabled = false;
             }
         }
