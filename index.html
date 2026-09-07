@@ -27,7 +27,7 @@
     <div class="container">
         <h2>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
         
-        <div id="gpsStatus" class="alert-box danger">กำลังตรวจสอบ GPS...</div>
+        <div id="gpsStatus" class="alert-box danger">กำลังตรวจสอบพิกัด GPS...</div>
         
         <div id="locationInfo" class="section" style="display:none;">
             <p>📍 <strong>สถานที่:</strong> <span id="locationName">-</span></p>
@@ -148,7 +148,7 @@
                                 document.getElementById("distanceText").innerText = `${Math.round(nearest.calculatedDist)} เมตร`;
                                 document.getElementById("locationInfo").style.display = "block";
 
-                                // กำหนดเงื่อนไขรัศมีไม่เกิน 50 เมตร
+                                // เงื่อนไข: ระยะทางต้องไม่เกิน 50 เมตร
                                 if (nearest.calculatedDist <= 50) {
                                     document.getElementById("gpsStatus").className = "alert-box success";
                                     document.getElementById("gpsStatus").innerHTML = `✅ ตรวจสอบ GPS ผ่าน (อยู่ในระยะ 50 เมตร)`;
@@ -165,8 +165,8 @@
                         });
 
                 }, error => {
-                    document.getElementById("gpsStatus").innerHTML = "❌ กรุณาเปิดใช้งาน GPS บนมือถือเพื่อระบุตำแหน่ง";
-                }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+                    document.getElementById("gpsStatus").innerHTML = "❌ ไม่สามารถระบุพิกัดได้ กรุณาเปิด GPS และรีเฟรชใหม่อีกครั้ง";
+                }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
             } else {
                 document.getElementById("gpsStatus").innerHTML = "❌ เบราว์เซอร์ไม่รองรับการระบุพิกัด";
             }
@@ -191,7 +191,6 @@
         }
 
         function checkFormReady() {
-            // เช็คว่าให้คะแนนครบ และระยะทางต้องไม่เกิน 50 เมตร
             if (currentData.healthyScore && currentData.safetyScore && currentData.locationId && currentData.calculatedDist <= 50) {
                 document.getElementById("submitBtn").disabled = false;
             }
