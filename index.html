@@ -148,13 +148,14 @@
                                 document.getElementById("distanceText").innerText = `${Math.round(nearest.calculatedDist)} เมตร`;
                                 document.getElementById("locationInfo").style.display = "block";
 
-                                if (nearest.calculatedDist <= 100) {
+                                // กำหนดเงื่อนไขรัศมีไม่เกิน 50 เมตร
+                                if (nearest.calculatedDist <= 50) {
                                     document.getElementById("gpsStatus").className = "alert-box success";
-                                    document.getElementById("gpsStatus").innerHTML = `✅ ตรวจสอบ GPS ผ่าน`;
+                                    document.getElementById("gpsStatus").innerHTML = `✅ ตรวจสอบ GPS ผ่าน (อยู่ในระยะ 50 เมตร)`;
                                     checkFormReady();
                                 } else {
                                     document.getElementById("gpsStatus").className = "alert-box danger";
-                                    document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุดประเมิน ${Math.round(nearest.calculatedDist)} เมตร (ต้องอยู่ในรัศมี 100 เมตร)`;
+                                    document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุดประเมิน ${Math.round(nearest.calculatedDist)} เมตร (ต้องอยู่ในรัศมีไม่เกิน 50 เมตร)`;
                                     document.getElementById("submitBtn").disabled = true;
                                 }
                             }
@@ -190,7 +191,8 @@
         }
 
         function checkFormReady() {
-            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId && currentData.calculatedDist <= 100) {
+            // เช็คว่าให้คะแนนครบ และระยะทางต้องไม่เกิน 50 เมตร
+            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId && currentData.calculatedDist <= 50) {
                 document.getElementById("submitBtn").disabled = false;
             }
         }
