@@ -136,10 +136,15 @@
                             document.getElementById("distanceText").innerText = `${Math.round(nearest.calculatedDist)} เมตร`;
                             document.getElementById("locationInfo").style.display = "block";
 
-                            // ปลดล็อกให้ส่งข้อมูลได้ทันทีทุกระยะ พร้อมแสดงสถานะสถานที่ใกล้ที่สุด
-                            document.getElementById("gpsStatus").className = "alert-box success";
-                            document.getElementById("gpsStatus").innerHTML = `✅ กำหนดจุดประเมิน: ${nearest.name} (ห่างประมาณ ${Math.round(nearest.calculatedDist)} ม.)`;
-                            checkFormReady();
+                            // ล็อกเงื่อนไข: ต้องอยู่ในรัศมี 100 เมตรเท่านั้น ถึงจะอนุญาตให้ประเมินได้
+                            if (nearest.calculatedDist <= 100) {
+                                document.getElementById("gpsStatus").className = "alert-box success";
+                                document.getElementById("gpsStatus").innerHTML = `✅ อยู่ในพื้นที่จุดประเมินจริง`;
+                                checkFormReady();
+                            } else {
+                                document.getElementById("gpsStatus").className = "alert-box danger";
+                                document.getElementById("gpsStatus").innerHTML = `⚠️ คุณอยู่ห่างจากจุด "${nearest.name}" ประมาณ ${Math.round(nearest.calculatedDist)} เมตร (ต้องเข้าใกล้กว่า 100 ม.)`;
+                            }
                         }
                     })
                     .catch(err => {
@@ -172,6 +177,7 @@
         }
 
         function checkFormReady() {
+            // จะปลดล็อกปุ่มส่งก็ต่อเมื่อ ให้คะแนนครบ และอยู่ในระยะ <= 100 เมตรเท่านั้น
             if (currentData.healthyScore && currentData.safetyScore && currentData.locationId) {
                 document.getElementById("submitBtn").disabled = false;
             }
