@@ -84,6 +84,7 @@
             district: "",
             targetLat: 0,
             targetLng: 0,
+            calculatedDist: 999,
             healthyScore: "",
             safetyScore: "",
             deviceId: getOrCreateDeviceId()
@@ -101,6 +102,7 @@
         function refreshGPS() {
             document.getElementById("gpsStatus").className = "alert-box danger";
             document.getElementById("gpsStatus").innerText = "กำลังรีเฟรชตำแหน่ง GPS...";
+            document.getElementById("submitBtn").disabled = true;
             getLocation();
         }
 
@@ -139,6 +141,7 @@
                                 currentData.district = nearest.district;
                                 currentData.targetLat = parseFloat(nearest.lat);
                                 currentData.targetLng = parseFloat(nearest.lng);
+                                currentData.calculatedDist = nearest.calculatedDist;
 
                                 document.getElementById("locationName").innerText = nearest.name;
                                 document.getElementById("locationDistrict").innerText = nearest.district;
@@ -187,8 +190,7 @@
         }
 
         function checkFormReady() {
-            let distance = parseFloat(document.getElementById("distanceText").innerText) || 999;
-            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId && distance <= 100) {
+            if (currentData.healthyScore && currentData.safetyScore && currentData.locationId && currentData.calculatedDist <= 100) {
                 document.getElementById("submitBtn").disabled = false;
             }
         }
@@ -214,7 +216,6 @@
             });
         }
 
-        // เริ่มต้นทำงานทันทีเมื่อเปิดหน้าเว็บ
         getLocation();
     </script>
 </body>
