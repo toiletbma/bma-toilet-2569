@@ -267,7 +267,6 @@
     
     let currentLat = null;
     let currentLng = null;
-    let resolvedPlaceName = "ไม่ระบุสถานที่";
 
     window.onload = function() {
         if (navigator.geolocation) {
@@ -275,13 +274,12 @@
                 currentLat = position.coords.latitude;
                 currentLng = position.coords.longitude;
                 
-                // ส่งพิกัดไปให้ Apps Script หาชื่อสถานที่ใกล้ที่สุดในชีต
+                // ดึงชื่อสถานที่จาก Apps Script ตามพิกัด
                 fetch(`${SCRIPT_URL}?lat=${currentLat}&lng=${currentLng}`)
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.location) {
-                            resolvedPlaceName = data.location;
-                            document.getElementById("locationStatus").innerText = "📍 " + resolvedPlaceName;
+                            document.getElementById("locationStatus").innerText = "📍 " + data.location;
                             document.getElementById("locationStatus").classList.remove('error');
                         } else {
                             document.getElementById("locationStatus").innerText = "📍 ไม่พบชื่อสถานที่ในรัศมีใกล้เคียง";
@@ -323,10 +321,10 @@
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("loading").style.display = "block";
 
+        // ส่งเฉพาะข้อมูลที่ Backend รองรับตามเดิมเป๊ะๆ เพื่อให้ข้อมูลเข้าชีตได้
         const formData = {
             lat: currentLat,
             lng: currentLng,
-            location: resolvedPlaceName,
             healthScore: document.getElementById("healthScore").value,
             safetyScore: document.getElementById("safetyScore").value,
             comment: document.getElementById("comment").value || "-"
