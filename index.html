@@ -2,117 +2,429 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบประเมินความสะอาดและความปลอดภัยห้องน้ำ กทม.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: #0b5ed7; margin-bottom: 25px; }
+        :root {
+            --color-green: #28a745; /* เขียวสด */
+            --color-yellow: #ffc107; /* เหลืองสด */
+            --color-red: #dc3545;   /* แดงสด */
+            --bg-body: #f4f6f9;
+            --bg-card: #ffffff;
+            --text-main: #333333;
+            --text-muted: #6c757d;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--color-green);
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* กล่องบอกสถานะสถานที่ */
+        .location-box {
+            background-color: #e2f7e4;
+            border: 2px solid #81c784;
+            color: #1b5e20;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 16px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .location-box.error {
+            background-color: #ffcdd2;
+            border: 2px solid #e57373;
+            color: #b71c1c;
+        }
+
+        .section-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+        }
+        .section-card:last-of-type {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .criteria-list {
+            margin: 0 0 15px 20px;
+            padding: 0;
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .criteria-list li {
+            margin-bottom: 5px;
+        }
+
+        /* ปุ่มเลือกสีสันสดใส */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .option-btn {
+            border: 2px solid transparent;
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 18px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: 'Sarabun', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .option-btn input { display: none; }
+
+        .option-label {
+            display: block;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+
+        /* ไอคอนวงกลมสี */
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
+            border: 3px solid rgba(255,255,255,0.5);
+        }
+
+        /* สไตล์เฉพาะของแต่ละปุ่ม */
+        .option-btn.green { color: var(--color-green); }
+        .option-btn.green .status-icon { background-color: var(--color-green); }
+        .option-btn.green:hover { border-color: var(--color-green); background-color: #e8f5e9; }
+        .option-btn.green.selected { border-color: var(--color-green); background-color: #e8f5e9; box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2); }
+
+        .option-btn.yellow { color: #9e7703; }
+        .option-btn.yellow .status-icon { background-color: var(--color-yellow); }
+        .option-btn.yellow:hover { border-color: var(--color-yellow); background-color: #fffde7; }
+        .option-btn.yellow.selected { border-color: var(--color-yellow); background-color: #fffde7; box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2); }
+
+        .option-btn.red { color: var(--color-red); }
+        .option-btn.red .status-icon { background-color: var(--color-red); }
+        .option-btn.red:hover { border-color: var(--color-red); background-color: #ffebee; }
+        .option-btn.red.selected { border-color: var(--color-red); background-color: #ffebee; box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2); }
+
         .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #495057; }
-        input[type="number"], textarea, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: 'Sarabun', sans-serif; }
-        textarea { resize: vertical; height: 100px; }
-        .location-box { background: #e9ecef; padding: 12px 15px; border-radius: 8px; font-weight: 600; color: #495057; margin-bottom: 20px; }
-        button { background-color: #0b5ed7; color: white; border: none; padding: 14px; width: 100%; font-size: 18px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-        button:hover { background-color: #0a58ca; }
-        button:disabled { background-color: #6c757d; cursor: not-allowed; }
-        #loading { display: none; text-align: center; margin-top: 15px; color: #0b5ed7; font-weight: 600; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #495057; font-size: 16px; }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1.5px solid #ced4da;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: 'Sarabun', sans-serif;
+            resize: vertical;
+            height: 90px;
+            transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: var(--color-green); outline: none; }
+
+        button[type="submit"] {
+            background-color: var(--color-green);
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            font-family: 'Sarabun', sans-serif;
+        }
+        button[type="submit"]:hover { background-color: #1e7e34; transform: translateY(-2px); }
+        button[type="submit"]:active { transform: translateY(1px); }
+        button:disabled { background-color: #b0bec5; cursor: not-allowed; box-shadow: none; }
+
+        #loading { display: none; text-align: center; margin-top: 20px; color: var(--color-green); font-weight: 600; font-size: 16px; }
+        
+        /* Responsive ปรับขนาดหน้าจอเล็ก */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 20px; border-radius: 15px; }
+            h2 { font-size: 20px; }
+            .location-box { padding: 12px; font-size: 14px; }
+            .section-card { padding: 15px; border-radius: 12px; }
+            .section-title { font-size: 16px; }
+            .criteria-list { font-size: 14px; margin-left: 15px; }
+            .options-grid { gap: 8px; }
+            .option-btn { padding: 14px 2px; }
+            .option-label { font-size: 14px; margin-top: 5px; }
+            .status-icon { width: 20px; height: 20px; }
+            label { font-size: 14px; }
+            button[type="submit"] { padding: 15px; font-size: 16px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🚀 แบบประเมินความสะอาดและความปลอดภัยห้องน้ำ กทม.</h2>
+    <h2>แบบประเมินความสะอาด<br>และความปลอดภัยห้องน้ำ กทม.</h2>
     
     <div class="location-box" id="locationStatus">
         📍 กำลังระบุตำแหน่งสถานที่ของคุณ...
     </div>
 
     <form id="evaluationForm" onsubmit="submitForm(event)">
-        <div class="form-group">
-            <label for="healthScore">1. คะแนนความสะอาดห้องน้ำ (Healthy) [เต็ม 10 คะแนน]</label>
-            <input type="number" id="healthScore" min="0" max="10" required placeholder="ใส่คะแนน 0 - 10">
+        
+        <!-- ส่วนที่ 1: ความสะอาด -->
+        <div class="section-card">
+            <div class="section-title">1. ด้านความสะอาด (Healthy)</div>
+            <ul class="criteria-list">
+                <li>ความสะอาดของห้องน้ำโดยรวม</li>
+                <li>อุปกรณ์ครบ (กระดาษ, สบู่, น้ำ)</li>
+                <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
+            </ul>
+            <div class="options-grid">
+                <label class="option-btn green" onclick="selectOption(this, 'healthScore', '10')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจมาก</span>
+                    <input type="radio" name="health" value="10" required>
+                </label>
+                <label class="option-btn yellow" onclick="selectOption(this, 'healthScore', '5')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจ</span>
+                    <input type="radio" name="health" value="5">
+                </label>
+                <label class="option-btn red" onclick="selectOption(this, 'healthScore', '0')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">ควรปรับปรุง</span>
+                    <input type="radio" name="health" value="0">
+                </label>
+            </div>
+            <input type="hidden" id="healthScore" required>
         </div>
 
-        <div class="form-group">
-            <label for="safetyScore">2. คะแนนความปลอดภัย (Safety) [เต็ม 10 คะแนน]</label>
-            <input type="number" id="safetyScore" min="0" max="10" required placeholder="ใส่คะแนน 0 - 10">
+        <!-- ส่วนที่ 2: ความปลอดภัย -->
+        <div class="section-card">
+            <div class="section-title">2. ด้านความปลอดภัย (Safety)</div>
+            <ul class="criteria-list">
+                <li>มีแสงสว่างเพียงพอ</li>
+                <li>พื้นห้องน้ำแห้ง</li>
+                <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
+            </ul>
+            <div class="options-grid">
+                <label class="option-btn green" onclick="selectOption(this, 'safetyScore', '10')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจมาก</span>
+                    <input type="radio" name="safety" value="10" required>
+                </label>
+                <label class="option-btn yellow" onclick="selectOption(this, 'safetyScore', '5')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจ</span>
+                    <input type="radio" name="safety" value="5">
+                </label>
+                <label class="option-btn red" onclick="selectOption(this, 'safetyScore', '0')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">ควรปรับปรุง</span>
+                    <input type="radio" name="safety" value="0">
+                </label>
+            </div>
+            <input type="hidden" id="safetyScore" required>
         </div>
 
+        <!-- ข้อเสนอแนะ -->
         <div class="form-group">
-            <label for="comment">3. ข้อเสนอแนะเพิ่มเติม</label>
+            <label for="comment">ข้อเสนอแนะเพิ่มเติม</label>
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <button type="submit" id="submitBtn">🚀 ส่งแบบประเมิน</button>
+        <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
         <div id="loading">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
     </form>
 </div>
 
 <script>
-    // URL Web App ใหม่ล่าสุดของคุณหมอ
+    // URL Web App ล่าสุดที่เชื่อมกับ Google Sheet ใหม่
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaSRL3UP-GRijQ6xllycgGt8qnb3K-A2FzJt3GNfjzbRBngQ7UsuY3sSBMVrchIUTjNw/exec";
     
-    let currentLat = 13.7563; // ค่าเริ่มต้น กทม.
-    let currentLng = 100.5018;
+    // ตัวแปรเก็บพิกัดล่าสุด
+    let currentLat = null;
+    let currentLng = null;
+    let watchId = null;
 
-    // ดึงพิกัด GPS อัตโนมัติเมื่อเปิดเว็บ
+    // ดึงพิกัด GPS อย่างต่อเนื่องทันทีที่โหลดหน้าเว็บ
     window.onload = function() {
+        startWatchingPosition();
+    };
+
+    function startWatchingPosition() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById("locationStatus").innerText = "📡 กำลังค้นหาสถานที่...";
+            // ใช้ watchPosition เพื่ออัปเดตพิกัดแบบเรียลไทม์
+            watchId = navigator.geolocation.watchPosition(function(position) {
                 currentLat = position.coords.latitude;
                 currentLng = position.coords.longitude;
+                
+                // ดึงชื่อสถานที่จากพิกัด
                 fetchLocationName(currentLat, currentLng);
             }, function(error) {
-                document.getElementById("locationStatus").innerText = "⚠️ ไม่สามารถเข้าถึงตำแหน่ง GPS ได้ (ใช้พิกัดสำรอง)";
+                handleLocationError(error);
+            }, { 
+                enableHighAccuracy: true, 
+                timeout: 15000, 
+                maximumAge: 5000 
             });
         } else {
-            document.getElementById("locationStatus").innerText = "⚠️ เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง";
+            document.getElementById("locationStatus").innerText = "⚠️ เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง";
+            document.getElementById("locationStatus").classList.add('error');
         }
-    };
+    }
 
     function fetchLocationName(lat, lng) {
         fetch(`${SCRIPT_URL}?lat=${lat}&lng=${lng}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById("locationStatus").innerText = "📍 สถานที่ใกล้เคียง: " + (data.location || "ไม่พบสถานที่ใกล้เคียง");
+                if(data.location) {
+                    document.getElementById("locationStatus").innerText = "📍 สถานที่ใกล้เคียง: " + data.location;
+                    document.getElementById("locationStatus").classList.remove('error');
+                } else {
+                    document.getElementById("locationStatus").innerText = "📍 พิกัดของคุณ: " + lat.toFixed(6) + ", " + lng.toFixed(6);
+                }
             })
             .catch(err => {
-                document.getElementById("locationStatus").innerText = "📍 พิกัดปัจจุบัน: " + lat.toFixed(4) + ", " + lng.toFixed(4);
+                console.error(err);
+                document.getElementById("locationStatus").innerText = "📍 พิกัดของคุณ: " + lat.toFixed(6) + ", " + lng.toFixed(6);
             });
+    }
+
+    function handleLocationError(error) {
+        let message = "";
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                message = "⚠️ กรุณาอนุญาตให้เข้าถึงตำแหน่งเพื่อระบุสถานที่";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                message = "⚠️ ไม่สามารถระบุตำแหน่งได้ในขณะนี้";
+                break;
+            case error.TIMEOUT:
+                message = "⏳ หมดเวลาค้นหาตำแหน่ง ลองใหม่อีกครั้ง";
+                break;
+            default:
+                message = "⚠️ เกิดข้อผิดพลาดในการระบุตำแหน่ง";
+                break;
+        }
+        document.getElementById("locationStatus").innerText = message;
+        document.getElementById("locationStatus").classList.add('error');
+        
+        // ใช้พิกัดกลางกรุงเทพฯ เป็นค่าสำรอง
+        currentLat = 13.7563;
+        currentLng = 100.5018;
+    }
+
+    // ฟังก์ชันจัดการปุ่มเลือกสี
+    function selectOption(element, inputId, score) {
+        document.getElementById(inputId).value = score;
+        
+        // ลบสถานะเลือกอันเก่าในกลุ่มเดียวกัน
+        const parentCard = element.closest('.section-card');
+        parentCard.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        
+        // ใส่สถานะเลือกอันใหม่
+        element.classList.add('selected');
     }
 
     function submitForm(event) {
         event.preventDefault();
         
+        // ถ้ายังไม่มีพิกัด ให้แจ้งเตือน
+        if (currentLat === null || currentLng === null) {
+            if (navigator.geolocation) {
+                 document.getElementById("locationStatus").innerText = "📡 กำลังค้นหาสถานที่ กรุณารอสักครู่...";
+                 return; // หยุดการส่งไว้ก่อน
+            } else {
+                 alert("❌ ไม่สามารถระบุตำแหน่งได้ กรุณาเปิด GPS");
+                 return;
+            }
+        }
+
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("loading").style.display = "block";
 
+        // รวบรวมข้อมูลทั้งหมดรวมถึงพิกัดล่าสุด
         const formData = {
             lat: currentLat,
             lng: currentLng,
             healthScore: document.getElementById("healthScore").value,
             safetyScore: document.getElementById("safetyScore").value,
-            comment: document.getElementById("comment").value
+            comment: document.getElementById("comment").value || "-"
         };
 
+        // ส่งข้อมูลไปยัง Google Apps Script
         fetch(SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors", // ป้องกันปัญหา CORS บน GitHub Pages
+            mode: "no-cors",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(formData)
         })
         .then(() => {
-            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
+            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ! ขอบคุณสำหรับความคิดเห็นครับ");
             document.getElementById("evaluationForm").reset();
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
-            location.reload();
+            // รีเซ็ตข้อความสถานที่
+            document.getElementById("locationStatus").innerText = "📍 กำลังระบุตำแหน่งสถานที่ของคุณ...";
         })
         .catch(error => {
+            console.error("Error:", error);
             alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
