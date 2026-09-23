@@ -145,7 +145,7 @@
         }
         textarea:focus { border-color: var(--color-green); outline: none; }
 
-        /* กล่องแสดงผลชื่อสถานที่และพิกัด (ปรับปรุงให้แสดงผลชัดเจน) */
+        /* กล่องแสดงชื่อสถานที่ */
         .location-box {
             background-color: #e2f7e4;
             border: 2px solid #81c784;
@@ -161,12 +161,6 @@
             background-color: #ffcdd2;
             border: 2px solid #e57373;
             color: #b71c1c;
-        }
-        .location-details {
-            font-size: 14px;
-            font-weight: normal;
-            margin-top: 5px;
-            color: #2e7d32;
         }
 
         button[type="submit"] {
@@ -258,10 +252,9 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงผลสถานที่และพิกัด (จุดแสดงผลที่เพิ่มเข้ามาตามที่ต้องการ) -->
+        <!-- กล่องแสดงชื่อสถานที่ -->
         <div class="location-box" id="locationStatus">
-            📍 กำลังระบุตำแหน่งและตรวจสอบชื่อสถานที่...
-            <div class="location-details" id="locationDetails">กรุณารอสักครู่</div>
+            📍 กำลังตรวจสอบชื่อสถานที่จากพิกัด...
         </div>
 
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
@@ -270,11 +263,11 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaSRL3UP-GRijQ6xllycgGt8qnb3K-A2FzJt3GNfjzbRBngQ7UsuY3sSBMVrchIUTjNw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeHokvQMmsiIUEmGqlXO9SEd5N-Oa15sFbhLBno5gtULohRNF4Vfk-yGKNDhzHfytfzA/exec";
     
     let currentLat = null;
     let currentLng = null;
-    let currentPlaceName = "-"; // ตัวแปรเก็บชื่อสถานที่ที่ดึงมาแสดงผล
+    let resolvedPlaceName = "ไม่ระบุสถานที่";
 
     window.onload = function() {
         if (navigator.geolocation) {
@@ -282,23 +275,22 @@
                 currentLat = position.coords.latitude;
                 currentLng = position.coords.longitude;
                 
-                // แสดงพิกัดดิบบนหน้าจอทันที
-                document.getElementById("locationStatus").innerHTML = `📍 พิกัดปัจจุบันของคุณ<div class="location-details">Lat: ${currentLat.toFixed(6)}, Lng: ${currentLng.toFixed(6)}</div>`;
-                document.getElementById("locationStatus").classList.remove('error');
-
-                // หากมีการยิงเช็คชื่อสถานที่จาก Apps Script เพิ่มเติม สามารถดึงค่ามาแสดงตรงนี้ได้
-                // ตัวอย่างเช่น หากมีการส่งพิกัดไปเช็คชื่อสถานที่ใน Google Sheets แล้วตอบกลับมา:
+                // ดึงชื่อสถานที่จาก Apps Script (ใช้คีย์ location ตาม doGet ของคุณหมอ)
                 fetch(`${SCRIPT_URL}?lat=${currentLat}&lng=${currentLng}`)
-                    .then(response => response.json())
+                    .then(res => res.json())
                     .then(data => {
-                        if (data && data.placeName) {
-                            currentPlaceName = data.placeName;
-                            document.getElementById("locationStatus").innerHTML = `📍 สถานที่: ${currentPlaceName}<div class="location-details">Lat: ${currentLat.toFixed(6)}, Lng: ${currentLng.toFixed(6)}</div>`;
+                        if (data && data.location) {
+                            resolvedPlaceName = data.location;
+                            document.getElementById("locationStatus").innerText = "📍 สถานที่: " + resolvedPlaceName;
+                            document.getElementById("locationStatus").classList.remove('error');
+                        } else {
+                            document.getElementById("locationStatus").innerText = "📍 สถานที่: ไม่พบสถานที่ใกล้เคียง";
+                            document.getElementById("locationStatus").classList.add('error');
                         }
                     })
                     .catch(err => {
-                        // ถ้าไม่สามารถดึงชื่อสถานที่ได้ จะยังคงแสดงพิกัดดิบสำรองไว้ตามที่ต้องการ
-                        console.log("ใช้พิกัดสำรอง");
+                        document.getElementById("locationStatus").innerText = "📍 สถานที่: ไม่สามารถเชื่อมต่อระบบค้นหาได้";
+                        document.getElementById("locationStatus").classList.add('error');
                     });
 
             }, function(error) {
@@ -334,7 +326,6 @@
         const formData = {
             lat: currentLat,
             lng: currentLng,
-            placeName: currentPlaceName,
             healthScore: document.getElementById("healthScore").value,
             safetyScore: document.getElementById("safetyScore").value,
             comment: document.getElementById("comment").value || "-"
