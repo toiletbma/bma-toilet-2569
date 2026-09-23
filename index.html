@@ -2,99 +2,355 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบประเมินห้องน้ำ BMA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ประเมินความสะอาดและความปลอดภัยห้องน้ำ กทม.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 600px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
-        h2 { color: #2c3e50; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #34495e; }
-        select, input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; background: #27ae60; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #219653; }
-        #loading { display: none; text-align: center; color: #e67e22; font-weight: bold; margin-top: 10px; }
+        :root {
+            --color-green: #28a745;
+            --color-yellow: #ffc107;
+            --color-red: #dc3545;
+            --bg-body: #f4f6f9;
+            --bg-card: #ffffff;
+            --text-main: #333333;
+            --text-muted: #6c757d;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--color-green);
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .section-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .criteria-list {
+            margin: 0 0 15px 20px;
+            padding: 0;
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .criteria-list li {
+            margin-bottom: 5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .option-btn {
+            border: 2px solid transparent;
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 18px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: 'Sarabun', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .option-btn input { display: none; }
+
+        .option-label {
+            display: block;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
+            border: 3px solid rgba(255,255,255,0.5);
+        }
+
+        .option-btn.green { color: var(--color-green); }
+        .option-btn.green .status-icon { background-color: var(--color-green); }
+        .option-btn.green:hover { border-color: var(--color-green); background-color: #e8f5e9; }
+        .option-btn.green.selected { border-color: var(--color-green); background-color: #e8f5e9; box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2); }
+
+        .option-btn.yellow { color: #9e7703; }
+        .option-btn.yellow .status-icon { background-color: var(--color-yellow); }
+        .option-btn.yellow:hover { border-color: var(--color-yellow); background-color: #fffde7; }
+        .option-btn.yellow.selected { border-color: var(--color-yellow); background-color: #fffde7; box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2); }
+
+        .option-btn.red { color: var(--color-red); }
+        .option-btn.red .status-icon { background-color: var(--color-red); }
+        .option-btn.red:hover { border-color: var(--color-red); background-color: #ffebee; }
+        .option-btn.red.selected { border-color: var(--color-red); background-color: #ffebee; box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2); }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #495057; font-size: 16px; }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1.5px solid #ced4da;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: 'Sarabun', sans-serif;
+            resize: vertical;
+            height: 90px;
+            transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: var(--color-green); outline: none; }
+
+        /* กล่องแสดงชื่อสถานที่ */
+        .location-box {
+            background-color: #e2f7e4;
+            border: 2px solid #81c784;
+            color: #1b5e20;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .location-box.error {
+            background-color: #ffcdd2;
+            border: 2px solid #e57373;
+            color: #b71c1c;
+        }
+
+        button[type="submit"] {
+            background-color: var(--color-green);
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            font-family: 'Sarabun', sans-serif;
+        }
+        button[type="submit"]:hover { background-color: #1e7e34; transform: translateY(-2px); }
+        button:disabled { background-color: #b0bec5; cursor: not-allowed; box-shadow: none; }
+
+        #loading { display: none; text-align: center; margin-top: 20px; color: var(--color-green); font-weight: 600; font-size: 16px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>แบบประเมินสุขาภิบาลห้องน้ำ</h2>
+    <h2>แบบประเมินความสะอาด<br>และความปลอดภัยห้องน้ำ กทม.</h2>
     
-    <form id="evaluationForm">
-        <!-- พิกัดจะถูกดึงอัตโนมัติ -->
-        <input type="hidden" id="lat" name="lat" value="13.7563">
-        <input type="hidden" id="lng" name="lng" value="105.0150">
-
-        <div class="form-group">
-            <label for="healthScore">คะแนนความสะอาด (Healthy): (สูงสุด 10)</label>
-            <select id="healthScore" name="healthScore" required>
-                <option value="5">5 คะแนน (ดีเยี่ยม)</option>
-                <option value="4">4 คะแนน (ดี)</option>
-                <option value="3">3 คะแนน (ปานกลาง)</option>
-                <option value="2">2 คะแนน (ควรปรับปรุง)</option>
-                <option value="1">1 คะแนน (แย่)</option>
-            </select>
+    <form id="evaluationForm" onsubmit="submitForm(event)">
+        
+        <!-- ส่วนที่ 1: ความสะอาด -->
+        <div class="section-card">
+            <div class="section-title">1. ด้านความสะอาด (Healthy)</div>
+            <ul class="criteria-list">
+                <li>ความสะอาดของห้องน้ำโดยรวม</li>
+                <li>อุปกรณ์ครบ (กระดาษ, สบู่, น้ำ)</li>
+                <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
+            </ul>
+            <div class="options-grid">
+                <label class="option-btn green" onclick="selectOption(this, 'healthScore', '10')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจมาก</span>
+                    <input type="radio" name="health" value="10" required>
+                </label>
+                <label class="option-btn yellow" onclick="selectOption(this, 'healthScore', '5')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจ</span>
+                    <input type="radio" name="health" value="5">
+                </label>
+                <label class="option-btn red" onclick="selectOption(this, 'healthScore', '0')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">ควรปรับปรุง</span>
+                    <input type="radio" name="health" value="0">
+                </label>
+            </div>
+            <input type="hidden" id="healthScore" required>
         </div>
 
-        <div class="form-group">
-            <label for="safetyScore">คะแนนความปลอดภัย (Safety): (สูงสุด 10)</label>
-            <select id="safetyScore" name="safetyScore" required>
-                <option value="5">5 คะแนน (ดีเยี่ยม)</option>
-                <option value="4">4 คะแนน (ดี)</option>
-                <option value="3">3 คะแนน (ปานกลาง)</option>
-                <option value="2">2 คะแนน (ควรปรับปรุง)</option>
-                <option value="1">1 คะแนน (แย่)</option>
-            </select>
+        <!-- ส่วนที่ 2: ความปลอดภัย -->
+        <div class="section-card">
+            <div class="section-title">2. ด้านความปลอดภัย (Safety)</div>
+            <ul class="criteria-list">
+                <li>มีแสงสว่างเพียงพอ</li>
+                <li>พื้นห้องน้ำแห้ง</li>
+                <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
+            </ul>
+            <div class="options-grid">
+                <label class="option-btn green" onclick="selectOption(this, 'safetyScore', '10')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจมาก</span>
+                    <input type="radio" name="safety" value="10" required>
+                </label>
+                <label class="option-btn yellow" onclick="selectOption(this, 'safetyScore', '5')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">พอใจ</span>
+                    <input type="radio" name="safety" value="5">
+                </label>
+                <label class="option-btn red" onclick="selectOption(this, 'safetyScore', '0')">
+                    <span class="status-icon"></span>
+                    <span class="option-label">ควรปรับปรุง</span>
+                    <input type="radio" name="safety" value="0">
+                </label>
+            </div>
+            <input type="hidden" id="safetyScore" required>
         </div>
 
+        <!-- ข้อเสนอแนะ -->
         <div class="form-group">
-            <label for="comment">ข้อเสนอแนะ:</label>
-            <textarea id="comment" name="comment" rows="3" placeholder="ระบุข้อเสนอแนะเพิ่มเติม..."></textarea>
+            <label for="comment">ข้อเสนอแนะเพิ่มเติม</label>
+            <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
+        </div>
+
+        <!-- กล่องแสดงชื่อสถานที่จากฐานข้อมูล -->
+        <div class="location-box" id="locationStatus">
+            📍 กำลังค้นหาชื่อสถานที่ใกล้คุณ...
         </div>
 
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
-        <div id="loading">กำลังส่งข้อมูลและบันทึกลง Google Sheet...</div>
+        <div id="loading">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
     </form>
 </div>
 
 <script>
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbyeHokvQMmsiIUEmGqlXO9SEd5N-Oa15sFbhLBno5gtULohRNF4Vfk-yGKNDhzHfytfzA/exec';
-  
-  const form = document.getElementById('evaluationForm');
-  const loading = document.getElementById('loading');
-  const submitBtn = document.getElementById('submitBtn');
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeHokvQMmsiIUEmGqlXO9SEd5N-Oa15sFbhLBno5gtULohRNF4Vfk-yGKNDhzHfytfzA/exec";
+    
+    let currentLat = null;
+    let currentLng = null;
 
-  // ดึงพิกัด GPS ปัจจุบันของผู้ใช้ (ถ้าเปิดใช้งาน)
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-      document.getElementById('lat').value = position.coords.latitude;
-      document.getElementById('lng').value = position.coords.longitude;
-    }, error => {
-      console.log('ไม่สามารถดึงพิกัดได้ ใช้ค่าเริ่มต้นแทน');
-    });
-  }
+    window.onload = function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                currentLat = position.coords.latitude;
+                currentLng = position.coords.longitude;
+                
+                // ดึงชื่อสถานที่จาก Apps Script ตามพิกัด
+                fetch(`${SCRIPT_URL}?lat=${currentLat}&lng=${currentLng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.location) {
+                            document.getElementById("locationStatus").innerText = "📍 " + data.location;
+                            document.getElementById("locationStatus").classList.remove('error');
+                        } else {
+                            document.getElementById("locationStatus").innerText = "📍 ไม่พบชื่อสถานที่ในรัศมีใกล้เคียง";
+                            document.getElementById("locationStatus").classList.add('error');
+                        }
+                    })
+                    .catch(err => {
+                        document.getElementById("locationStatus").innerText = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลชื่อสถานที่ได้";
+                        document.getElementById("locationStatus").classList.add('error');
+                    });
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    submitBtn.style.display = 'none';
-    loading.style.display = 'block';
+            }, function(error) {
+                document.getElementById("locationStatus").innerText = "⚠️ ไม่สามารถเข้าถึง GPS ได้ กรุณาเปิดสิทธิ์ตำแหน่ง";
+                document.getElementById("locationStatus").classList.add('error');
+            }, { enableHighAccuracy: true, timeout: 15000 });
+        } else {
+            document.getElementById("locationStatus").innerText = "⚠️ เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง";
+            document.getElementById("locationStatus").classList.add('error');
+        }
+    };
 
-    fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-      .then(response => response.json())
-      .then(result => {
-        alert('ส่งแบบประเมินสำเร็จ! ระบบบันทึกข้อมูลและคำนวณเกณฑ์สีเรียบร้อยแล้ว');
-        form.reset();
-        loading.style.display = 'none';
-        submitBtn.style.display = 'block';
-      })
-      .catch(error => {
-        console.error('Error!', error.message);
-        alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
-        loading.style.display = 'none';
-        submitBtn.style.display = 'block';
-      });
-  });
+    function selectOption(element, inputId, score) {
+        document.getElementById(inputId).value = score;
+        const parentCard = element.closest('.section-card');
+        parentCard.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        element.classList.add('selected');
+    }
+
+    function submitForm(event) {
+        event.preventDefault();
+        
+        if (currentLat === null || currentLng === null) {
+            alert("❌ กำลังรอพิกัด GPS กรุณารอสักครู่แล้วลองใหม่อีกครั้ง");
+            return;
+        }
+
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("loading").style.display = "block";
+
+        // ส่งเฉพาะข้อมูลที่ Backend รองรับตามเดิมเป๊ะๆ เพื่อให้ข้อมูลเข้าชีตได้
+        const formData = {
+            lat: currentLat,
+            lng: currentLng,
+            healthScore: document.getElementById("healthScore").value,
+            safetyScore: document.getElementById("safetyScore").value,
+            comment: document.getElementById("comment").value || "-"
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
+            document.getElementById("evaluationForm").reset();
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("loading").style.display = "none";
+        })
+        .catch(error => {
+            alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("loading").style.display = "none";
+        });
+    }
 </script>
 
 </body>
