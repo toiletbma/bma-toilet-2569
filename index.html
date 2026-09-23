@@ -15,19 +15,28 @@
         button:hover { background: #219653; }
         #loading { display: none; text-align: center; color: #e67e22; font-weight: bold; margin-top: 15px; }
         
-        /* สไตล์ส่วนแสดงผลเกณฑ์สีและ GPS ด้านล่าง */
+        /* กล่องแสดงชื่อสถานที่ให้เห็นชัดเจนสำหรับคนทั่วไป */
+        .location-banner { background: #e8f8f5; border: 2px solid #27ae60; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .location-title { font-size: 14px; color: #7f8c8d; margin-bottom: 5px; }
+        .location-name { font-size: 20px; font-weight: bold; color: #27ae60; }
+        
         .status-box { margin-top: 20px; padding: 15px; border-radius: 6px; background: #f8f9fa; border: 1px solid #dee2e6; text-align: center; }
         .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: bold; color: white; margin: 5px; }
         .bg-green { background-color: #27ae60; }
         .bg-yellow { background-color: #f39c12; }
         .bg-red { background-color: #c0392b; }
-        .gps-info { font-size: 13px; color: #7f8c8d; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>แบบประเมินสุขาภิบาลห้องน้ำ</h2>
+
+    <!-- กล่องแสดงชื่อสถานที่ให้ผู้ใช้งานเห็นชัดเจน -->
+    <div class="location-banner">
+        <div class="location-title">📍 กำลังประเมินสถานที่:</div>
+        <div class="location-name" id="displayLocationName">กำลังค้นหาชื่อสถานที่...</div>
+    </div>
     
     <form id="evaluationForm">
         <div class="form-group">
@@ -57,17 +66,11 @@
         <div id="loading">กำลังส่งข้อมูลและบันทึกลง Google Sheet...</div>
     </form>
 
-    <!-- ส่วนแสดงสถานะเกณฑ์สี -->
     <div class="status-box">
         <div style="font-weight: bold; margin-bottom: 5px; color: #2c3e50;">เกณฑ์การประเมินสถานะ KPI</div>
         <span class="badge bg-green">ผ่านปกติ (เขียว)</span>
         <span class="badge bg-yellow">อนุโลมเหลือง</span>
         <span class="badge bg-red">ไม่ผ่านเกณฑ์ (แดง)</span>
-    </div>
-
-    <!-- ส่วน GPS จับพิกัดด้านล่างสุด และแสดงชื่อสถานที่ -->
-    <div class="gps-info" id="gpsStatus">
-        📍 กำลังตรวจสอบพิกัด GPS และชื่อสถานที่ของท่าน...
     </div>
 </div>
 
@@ -86,7 +89,7 @@
           currentLat = position.coords.latitude;
           currentLng = position.coords.longitude;
           
-          // ดึงชื่อสถานที่จากพิกัด
+          // ดึงชื่อสถานที่จาก Google Sheets ผ่าน Apps Script
           fetch(`${scriptURL}?lat=${currentLat}&lng=${currentLng}`)
             .then(res => res.json())
             .then(data => {
@@ -96,20 +99,21 @@
               if(data.district) {
                 districtResult = data.district;
               }
-              document.getElementById('gpsStatus').innerText = `📍 สถานที่: ${locationNameResult} (เขต ${districtResult})\nพิกัด: Lat ${currentLat.toFixed(5)}, Lng ${currentLng.toFixed(5)}`;
+              // แสดงชื่อสถานที่ให้ผู้ใช้งานเห็นเด่นชัด
+              document.getElementById('displayLocationName').innerText = `${locationNameResult} (เขต ${districtResult})`;
             })
             .catch(() => {
-              document.getElementById('gpsStatus').innerText = `📍 พิกัดปัจจุบัน: Lat ${currentLat.toFixed(5)}, Lng ${currentLng.toFixed(5)}`;
+              document.getElementById('displayLocationName').innerText = "ห้องน้ำสาธารณะ กทม.";
             });
 
         },
         (error) => {
-          document.getElementById('gpsStatus').innerText = '📍 ไม่สามารถดึงพิกัด GPS ได้ (ใช้งานแบบปกติ)';
+          document.getElementById('displayLocationName').innerText = "ห้องน้ำสาธารณะ กทม.";
         },
         { enableHighAccuracy: true }
       );
     } else {
-      document.getElementById('gpsStatus').innerText = '📍 เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง GPS';
+      document.getElementById('displayLocationName').innerText = "ห้องน้ำสาธารณะ กทม.";
     }
   });
 
