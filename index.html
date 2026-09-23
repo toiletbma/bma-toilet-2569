@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</title>
+    <title>ประเมินความสะอาดและความปลอดภัยห้องน้ำ กทม.</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -145,7 +145,7 @@
         }
         textarea:focus { border-color: var(--color-green); outline: none; }
 
-        /* กล่องแสดงชื่อสถานที่ (อยู่ล่างสุด ก่อนปุ่มส่ง) */
+        /* กล่องแสดงผลชื่อสถานที่และพิกัด (ปรับปรุงให้แสดงผลชัดเจน) */
         .location-box {
             background-color: #e2f7e4;
             border: 2px solid #81c784;
@@ -161,6 +161,12 @@
             background-color: #ffcdd2;
             border: 2px solid #e57373;
             color: #b71c1c;
+        }
+        .location-details {
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 5px;
+            color: #2e7d32;
         }
 
         button[type="submit"] {
@@ -186,7 +192,7 @@
 <body>
 
 <div class="container">
-    <h2>แบบประเมินความสะอาด<br>และความปลอดภัยห้องน้ำ กทม.</h2>
+    <h2>แบบประเมินความสะอาด<br>& ความปลอดภัยห้องน้ำ กทม.</h2>
     
     <form id="evaluationForm" onsubmit="submitForm(event)">
         
@@ -252,9 +258,10 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่ (อยู่ล่างสุด ก่อนปุ่มส่ง) -->
+        <!-- กล่องแสดงผลสถานที่และพิกัด (จุดแสดงผลที่เพิ่มเข้ามาตามที่ต้องการ) -->
         <div class="location-box" id="locationStatus">
-            📍 กำลังค้นหาชื่อสถานที่จาก GPS...
+            📍 กำลังระบุตำแหน่งและตรวจสอบชื่อสถานที่...
+            <div class="location-details" id="locationDetails">กรุณารอสักครู่</div>
         </div>
 
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
@@ -267,13 +274,33 @@
     
     let currentLat = null;
     let currentLng = null;
+    let currentPlaceName = "-"; // ตัวแปรเก็บชื่อสถานที่ที่ดึงมาแสดงผล
 
     window.onload = function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 currentLat = position.coords.latitude;
                 currentLng = position.coords.longitude;
-                fetchLocationName(currentLat, currentLng);
+                
+                // แสดงพิกัดดิบบนหน้าจอทันที
+                document.getElementById("locationStatus").innerHTML = `📍 พิกัดปัจจุบันของคุณ<div class="location-details">Lat: ${currentLat.toFixed(6)}, Lng: ${currentLng.toFixed(6)}</div>`;
+                document.getElementById("locationStatus").classList.remove('error');
+
+                // หากมีการยิงเช็คชื่อสถานที่จาก Apps Script เพิ่มเติม สามารถดึงค่ามาแสดงตรงนี้ได้
+                // ตัวอย่างเช่น หากมีการส่งพิกัดไปเช็คชื่อสถานที่ใน Google Sheets แล้วตอบกลับมา:
+                fetch(`${SCRIPT_URL}?lat=${currentLat}&lng=${currentLng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.placeName) {
+                            currentPlaceName = data.placeName;
+                            document.getElementById("locationStatus").innerHTML = `📍 สถานที่: ${currentPlaceName}<div class="location-details">Lat: ${currentLat.toFixed(6)}, Lng: ${currentLng.toFixed(6)}</div>`;
+                        }
+                    })
+                    .catch(err => {
+                        // ถ้าไม่สามารถดึงชื่อสถานที่ได้ จะยังคงแสดงพิกัดดิบสำรองไว้ตามที่ต้องการ
+                        console.log("ใช้พิกัดสำรอง");
+                    });
+
             }, function(error) {
                 document.getElementById("locationStatus").innerText = "⚠️ ไม่สามารถเข้าถึง GPS ได้ กรุณาเปิดสิทธิ์ตำแหน่ง";
                 document.getElementById("locationStatus").classList.add('error');
@@ -283,24 +310,6 @@
             document.getElementById("locationStatus").classList.add('error');
         }
     };
-
-    function fetchLocationName(lat, lng) {
-        fetch(`${SCRIPT_URL}?lat=${lat}&lng=${lng}`)
-            .then(response => response.json())
-            .then(data => {
-                if(data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง") {
-                    document.getElementById("locationStatus").innerText = "📍 สถานที่: " + data.location;
-                    document.getElementById("locationStatus").classList.remove('error');
-                } else {
-                    document.getElementById("locationStatus").innerText = "⚠️ ไม่พบชื่อสถานที่ในรัศมีที่กำหนด";
-                    document.getElementById("locationStatus").classList.add('error');
-                }
-            })
-            .catch(err => {
-                document.getElementById("locationStatus").innerText = "⚠️ เกิดข้อผิดพลาดในการดึงชื่อสถานที่";
-                document.getElementById("locationStatus").classList.add('error');
-            });
-    }
 
     function selectOption(element, inputId, score) {
         document.getElementById(inputId).value = score;
@@ -325,6 +334,7 @@
         const formData = {
             lat: currentLat,
             lng: currentLng,
+            placeName: currentPlaceName,
             healthScore: document.getElementById("healthScore").value,
             safetyScore: document.getElementById("safetyScore").value,
             comment: document.getElementById("comment").value || "-"
