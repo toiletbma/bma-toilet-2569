@@ -9,7 +9,7 @@
         body { font-family: 'Sarabun', sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         h2 { text-align: center; color: #198754; margin-bottom: 20px; font-size: 22px; }
-        .location-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 12px 15px; border-radius: 10px; font-weight: 600; color: #2e7d32; margin-bottom: 20px; text-align: center; font-size: 15px; }
+        .location-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 12px 15px; border-radius: 10px; font-weight: 600; color: #2e7d32; margin-bottom: 20px; text-align: center; font-size: 15px; line-height: 1.5; }
         .section-card { background: #fff; border: 1px solid #dee2e6; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .section-title { font-weight: 600; font-size: 18px; margin-bottom: 10px; color: #212529; }
         .criteria-list { margin: 0 0 15px 20px; padding: 0; color: #555; font-size: 15px; }
@@ -102,9 +102,9 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่และพิกัด (ย้ายมาไว้ล่างสุดตรงนี้แล้วครับ) -->
+        <!-- กล่องแสดงชื่อสถานที่และพิกัดอยู่ล่างสุด -->
         <div class="location-box" id="locationStatus">
-            📍 กำลังระบุตำแหน่งสถานที่ของคุณ...
+            📍 กำลังค้นหาชื่อสถานที่จากพิกัด GPS...
         </div>
 
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
@@ -136,10 +136,11 @@
         fetch(`${SCRIPT_URL}?lat=${lat}&lng=${lng}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById("locationStatus").innerText = "📍 สถานที่ใกล้เคียง: " + (data.location || "ไม่พบสถานที่ใกล้เคียง") + " (" + lat.toFixed(4) + ", " + lng.toFixed(4) + ")";
+                let placeName = data.location || "ไม่พบสถานที่ใกล้เคียง";
+                document.getElementById("locationStatus").innerHTML = `📍 สถานที่: <b>${placeName}</b><br><span style="font-size: 13px; color: #555;">พิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)} (ระยะห่าง ${data.distanceMeters || 0} เมตร)</span>`;
             })
             .catch(err => {
-                document.getElementById("locationStatus").innerText = "📍 พิกัดปัจจุบัน: " + lat.toFixed(4) + ", " + lng.toFixed(4);
+                document.getElementById("locationStatus").innerHTML = `📍 พิกัดปัจจุบัน: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
             });
     }
 
@@ -191,7 +192,7 @@
             document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
-        })
+        })ค
         .catch(error => {
             alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
             document.getElementById("submitBtn").disabled = false;
