@@ -22,21 +22,29 @@
     <h2>แบบประเมินสุขาภิบาลห้องน้ำ</h2>
     
     <form id="evaluationForm">
+        <!-- พิกัดจะถูกดึงอัตโนมัติ -->
+        <input type="hidden" id="lat" name="lat" value="13.7563">
+        <input type="hidden" id="lng" name="lng" value="105.0150">
+
         <div class="form-group">
-            <label for="healthScore">ความสะอาดห้องน้ำ (Healthy):</label>
+            <label for="healthScore">คะแนนความสะอาด (Healthy): (สูงสุด 10)</label>
             <select id="healthScore" name="healthScore" required>
-                <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
-                <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
-                <option value="ควรปรับปรุง">ควรปรับปรุง (0 คะแนน)</option>
+                <option value="5">5 คะแนน (ดีเยี่ยม)</option>
+                <option value="4">4 คะแนน (ดี)</option>
+                <option value="3">3 คะแนน (ปานกลาง)</option>
+                <option value="2">2 คะแนน (ควรปรับปรุง)</option>
+                <option value="1">1 คะแนน (แย่)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="safetyScore">ความปลอดภัย (Safety):</label>
+            <label for="safetyScore">คะแนนความปลอดภัย (Safety): (สูงสุด 10)</label>
             <select id="safetyScore" name="safetyScore" required>
-                <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
-                <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
-                <option value="ควรปรับปรุง">ควรปรับปรุง (0 คะแนน)</option>
+                <option value="5">5 คะแนน (ดีเยี่ยม)</option>
+                <option value="4">4 คะแนน (ดี)</option>
+                <option value="3">3 คะแนน (ปานกลาง)</option>
+                <option value="2">2 คะแนน (ควรปรับปรุง)</option>
+                <option value="1">1 คะแนน (แย่)</option>
             </select>
         </div>
 
@@ -57,41 +65,35 @@
   const loading = document.getElementById('loading');
   const submitBtn = document.getElementById('submitBtn');
 
+  // ดึงพิกัด GPS ปัจจุบันของผู้ใช้ (ถ้าเปิดใช้งาน)
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      document.getElementById('lat').value = position.coords.latitude;
+      document.getElementById('lng').value = position.coords.longitude;
+    }, error => {
+      console.log('ไม่สามารถดึงพิกัดได้ ใช้ค่าเริ่มต้นแทน');
+    });
+  }
+
   form.addEventListener('submit', e => {
     e.preventDefault();
     submitBtn.style.display = 'none';
     loading.style.display = 'block';
 
-    // จัดรูปแบบข้อมูลเป็น JSON ให้ตรงกับที่ Google Apps Script ฝั่ง doPost(e) รอรับ
-    const payload = {
-      locationId: "LOC-001",
-      name: "ห้องน้ำสาธารณะเขตพญาไท",
-      district: "พญาไท",
-      healthyScore: document.getElementById('healthScore').value,
-      safetyScore: document.getElementById('safetyScore').value,
-      suggestion: document.getElementById('comment').value,
-      deviceId: "WEB-" + Date.now()
-    };
-
-    fetch(scriptURL, { 
-      method: 'POST', 
-      mode: 'no-cors', // ป้องกันปัญหา CORS ของ Google Script
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(() => {
-      alert('ส่งแบบประเมินสำเร็จ! บันทึกลง Google Sheet เรียบร้อยแล้ว');
-      form.reset();
-      loading.style.display = 'none';
-      submitBtn.style.display = 'block';
-    })
-    .catch(error => {
-      console.error('Error!', error);
-      alert('ส่งข้อมูลสำเร็จ');
-      form.reset();
-      loading.style.display = 'none';
-      submitBtn.style.display = 'block';
-    });
+    fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+      .then(response => response.json())
+      .then(result => {
+        alert('ส่งแบบประเมินสำเร็จ! ระบบบันทึกข้อมูลและคำนวณเกณฑ์สีเรียบร้อยแล้ว');
+        form.reset();
+        loading.style.display = 'none';
+        submitBtn.style.display = 'block';
+      })
+      .catch(error => {
+        console.error('Error!', error.message);
+        alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+        loading.style.display = 'none';
+        submitBtn.style.display = 'block';
+      });
   });
 </script>
 
