@@ -19,7 +19,6 @@
         .option-btn input { display: none; }
         .option-label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 3px; }
         
-        /* สีของแต่ละตัวเลือก */
         .option-btn.green { border-color: #198754; }
         .option-btn.green .option-label { color: #198754; }
         .option-btn.yellow { border-color: #ffc107; }
@@ -27,7 +26,6 @@
         .option-btn.red { border-color: #dc3545; }
         .option-btn.red .option-label { color: #dc3545; }
 
-        /* สถานะตอนเลือก */
         .option-btn.selected.green { background-color: #d1e7dd; border-color: #0f5132; }
         .option-btn.selected.yellow { background-color: #fff3cd; border-color: #ffca2c; }
         .option-btn.selected.red { background-color: #f8d7da; border-color: #842029; }
@@ -62,7 +60,7 @@
             </ul>
             <div class="options-grid">
                 <label class="option-btn green" onclick="selectOption(this, 'healthScore', '10')">
-                    <input type="radio" name="health" value="10" required>
+                    <input type="radio" name="health" value="10">
                     <span class="option-label">พอใจ<br>มาก (10)</span>
                 </label>
                 <label class="option-btn yellow" onclick="selectOption(this, 'healthScore', '5')">
@@ -87,7 +85,7 @@
             </ul>
             <div class="options-grid">
                 <label class="option-btn green" onclick="selectOption(this, 'safetyScore', '10')">
-                    <input type="radio" name="safety" value="10" required>
+                    <input type="radio" name="safety" value="10">
                     <span class="option-label">พอใจ<br>มาก (10)</span>
                 </label>
                 <label class="option-btn yellow" onclick="selectOption(this, 'safetyScore', '5')">
@@ -114,13 +112,12 @@
 </div>
 
 <script>
-    // URL Web App ล่าสุดของคุณหมอ
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbweWKl46sHsj-mg0HAL_yi85t0eG-yFWYYF1CTn0jMpNiGLIxVZF7IoFYOGVYRWPvzX6w/exec";
+    // อัปเดต URL เป็นลิงก์ Web App ล่าสุดของคุณหมอแล้ว
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFUzB7e3ccwByODfVr1O4FPD-9WUuMD7gsFoCG6j1JqR-2jv_goX7MOEA97Bu1m1wogQ/exec";
     
     let currentLat = 13.7563; 
     let currentLng = 100.5018;
 
-    // ดึงพิกัด GPS อัตโนมัติเมื่อเปิดหน้าเว็บ
     window.onload = function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -146,7 +143,6 @@
             });
     }
 
-    // ฟังก์ชันจัดการปุ่มเลือกสี
     function selectOption(element, inputId, score) {
         document.getElementById(inputId).value = score;
         
@@ -161,14 +157,21 @@
     function submitForm(event) {
         event.preventDefault();
         
+        const health = document.getElementById("healthScore").value;
+        const safety = document.getElementById("safetyScore").value;
+        if (health === "" || safety === "") {
+            alert("⚠️ กรุณาเลือกคะแนนประเมินให้ครบทั้ง 2 ด้านครับ");
+            return;
+        }
+
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("loading").style.display = "block";
 
         const formData = {
             lat: currentLat,
             lng: currentLng,
-            healthScore: document.getElementById("healthScore").value,
-            safetyScore: document.getElementById("safetyScore").value,
+            healthScore: health,
+            safetyScore: safety,
             comment: document.getElementById("comment").value || "-"
         };
 
@@ -183,6 +186,8 @@
         .then(() => {
             alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
             document.getElementById("evaluationForm").reset();
+            document.getElementById("healthScore").value = "";
+            document.getElementById("safetyScore").value = "";
             document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
