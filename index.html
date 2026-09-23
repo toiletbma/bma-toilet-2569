@@ -186,7 +186,7 @@
 <body>
 
 <div class="container">
-    <h2>แบบประเมินความสะอาด<br>& ความปลอดภัยห้องน้ำ กทม.</h2>
+    <h2>แบบประเมินความสะอาด<br>และความปลอดภัยห้องน้ำ กทม.</h2>
     
     <form id="evaluationForm" onsubmit="submitForm(event)">
         
@@ -252,9 +252,9 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่ -->
+        <!-- กล่องแสดงชื่อสถานที่จากฐานข้อมูล -->
         <div class="location-box" id="locationStatus">
-            📍 กำลังตรวจสอบชื่อสถานที่จากพิกัด...
+            📍 กำลังค้นหาชื่อสถานที่ใกล้คุณ...
         </div>
 
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
@@ -275,21 +275,21 @@
                 currentLat = position.coords.latitude;
                 currentLng = position.coords.longitude;
                 
-                // ดึงชื่อสถานที่จาก Apps Script (ใช้คีย์ location ตาม doGet ของคุณหมอ)
+                // ส่งพิกัดไปให้ Apps Script หาชื่อสถานที่ใกล้ที่สุดในชีต
                 fetch(`${SCRIPT_URL}?lat=${currentLat}&lng=${currentLng}`)
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.location) {
                             resolvedPlaceName = data.location;
-                            document.getElementById("locationStatus").innerText = "📍 สถานที่: " + resolvedPlaceName;
+                            document.getElementById("locationStatus").innerText = "📍 " + resolvedPlaceName;
                             document.getElementById("locationStatus").classList.remove('error');
                         } else {
-                            document.getElementById("locationStatus").innerText = "📍 สถานที่: ไม่พบสถานที่ใกล้เคียง";
+                            document.getElementById("locationStatus").innerText = "📍 ไม่พบชื่อสถานที่ในรัศมีใกล้เคียง";
                             document.getElementById("locationStatus").classList.add('error');
                         }
                     })
                     .catch(err => {
-                        document.getElementById("locationStatus").innerText = "📍 สถานที่: ไม่สามารถเชื่อมต่อระบบค้นหาได้";
+                        document.getElementById("locationStatus").innerText = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลชื่อสถานที่ได้";
                         document.getElementById("locationStatus").classList.add('error');
                     });
 
@@ -326,6 +326,7 @@
         const formData = {
             lat: currentLat,
             lng: currentLng,
+            location: resolvedPlaceName,
             healthScore: document.getElementById("healthScore").value,
             safetyScore: document.getElementById("safetyScore").value,
             comment: document.getElementById("comment").value || "-"
