@@ -33,18 +33,18 @@
         <div class="form-group">
             <label for="healthScore">คะแนนความสะอาด (Healthy): (สูงสุด 10)</label>
             <select id="healthScore" name="healthScore" required>
-                <option value="พอใจมาก">พอใจมาก</option>
-                <option value="ปานกลาง">ปานกลาง</option>
-                <option value="ควรปรับปรุง">ควรปรับปรุง</option>
+                <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
+                <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
+                <option value="ควรปรับปรุง">ควรปรับปรุง (0 คะแนน)</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="safetyScore">คะแนนความปลอดภัย (Safety): (สูงสุด 10)</label>
             <select id="safetyScore" name="safetyScore" required>
-                <option value="พอใจมาก">พอใจมาก</option>
-                <option value="ปานกลาง">ปานกลาง</option>
-                <option value="ควรปรับปรุง">ควรปรับปรุง</option>
+                <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
+                <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
+                <option value="ควรปรับปรุง">ควรปรับปรุง (0 คะแนน)</option>
             </select>
         </div>
 
@@ -72,11 +72,13 @@
 </div>
 
 <script>
+  // ใช้ Web App URL ล่าสุดของคุณหมอ
   const scriptURL = 'https://script.google.com/macros/s/AKfycbzaSRL3UP-GRijQ6xllycgGt8qnb3K-A2FzJt3GNfjzbRBngQ7UsuY3sSBMVrchIUTjNw/exec';
   
   let currentLat = "";
   let currentLng = "";
 
+  // ทำการดึงพิกัด GPS อัตโนมัติเมื่อเปิดหน้าเว็บ
   window.addEventListener('DOMContentLoaded', () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
