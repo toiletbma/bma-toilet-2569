@@ -3,25 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แบบประเมินสุขาภิบาลห้องน้ำ</title>
+    <title>ระบบประเมินห้องน้ำ BMA</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 600px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: auto; }
-        h2 { color: #2c3e50; text-align: center; margin-bottom: 25px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: #34495e; }
-        select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
-        button { width: 100%; background: #27ae60; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .container { max-width: 600px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
+        h2 { color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #34495e; }
+        select, input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; background: #27ae60; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         button:hover { background: #219653; }
-        #loading { display: none; text-align: center; color: #e67e22; font-weight: bold; margin-top: 15px; }
-        
-        /* สไตล์ส่วนแสดงผลเกณฑ์สีและ GPS ด้านล่าง */
-        .status-box { margin-top: 20px; padding: 15px; border-radius: 6px; background: #f8f9fa; border: 1px solid #dee2e6; text-align: center; }
-        .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: bold; color: white; margin: 5px; }
-        .bg-green { background-color: #27ae60; }
-        .bg-yellow { background-color: #f39c12; }
-        .bg-red { background-color: #c0392b; }
-        .gps-info { font-size: 13px; color: #7f8c8d; margin-top: 10px; text-align: center; }
+        #loading { display: none; text-align: center; color: #e67e22; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -31,7 +23,7 @@
     
     <form id="evaluationForm">
         <div class="form-group">
-            <label for="healthScore">คะแนนความสะอาด (Healthy): (สูงสุด 10)</label>
+            <label for="healthScore">ความสะอาดห้องน้ำ (Healthy):</label>
             <select id="healthScore" name="healthScore" required>
                 <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
                 <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
@@ -40,7 +32,7 @@
         </div>
 
         <div class="form-group">
-            <label for="safetyScore">คะแนนความปลอดภัย (Safety): (สูงสุด 10)</label>
+            <label for="safetyScore">ความปลอดภัย (Safety):</label>
             <select id="safetyScore" name="safetyScore" required>
                 <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
                 <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
@@ -50,53 +42,17 @@
 
         <div class="form-group">
             <label for="comment">ข้อเสนอแนะ:</label>
-            <textarea id="comment" name="comment" rows="4" placeholder="ระบุข้อเสนอแนะเพิ่มเติม . . ."></textarea>
+            <textarea id="comment" name="comment" rows="3" placeholder="ระบุข้อเสนอแนะเพิ่มเติม..."></textarea>
         </div>
 
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
         <div id="loading">กำลังส่งข้อมูลและบันทึกลง Google Sheet...</div>
     </form>
-
-    <!-- ส่วนแสดงสถานะเกณฑ์สี -->
-    <div class="status-box">
-        <div style="font-weight: bold; margin-bottom: 5px; color: #2c3e50;">เกณฑ์การประเมินสถานะ KPI</div>
-        <span class="badge bg-green">ผ่านปกติ (เขียว)</span>
-        <span class="badge bg-yellow">อนุโลมเหลือง</span>
-        <span class="badge bg-red">ไม่ผ่านเกณฑ์ (แดง)</span>
-    </div>
-
-    <!-- ส่วน GPS จับพิกัดด้านล่างสุด -->
-    <div class="gps-info" id="gpsStatus">
-        📍 กำลังตรวจสอบพิกัด GPS ของท่าน...
-    </div>
 </div>
 
 <script>
-  // ใช้ Web App URL ล่าสุดของคุณหมอ
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbzaSRL3UP-GRijQ6xllycgGt8qnb3K-A2FzJt3GNfjzbRBngQ7UsuY3sSBMVrchIUTjNw/exec';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbyeHokvQMmsiIUEmGqlXO9SEd5N-Oa15sFbhLBno5gtULohRNF4Vfk-yGKNDhzHfytfzA/exec';
   
-  let currentLat = "";
-  let currentLng = "";
-
-  // ทำการดึงพิกัด GPS อัตโนมัติเมื่อเปิดหน้าเว็บ
-  window.addEventListener('DOMContentLoaded', () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          currentLat = position.coords.latitude;
-          currentLng = position.coords.longitude;
-          document.getElementById('gpsStatus').innerText = `📍 พิกัด GPS ปัจจุบัน: Lat ${currentLat.toFixed(5)}, Lng ${currentLng.toFixed(5)}`;
-        },
-        (error) => {
-          document.getElementById('gpsStatus').innerText = '📍 ไม่สามารถดึงพิกัด GPS ได้ (ใช้งานแบบปกติ)';
-        },
-        { enableHighAccuracy: true }
-      );
-    } else {
-      document.getElementById('gpsStatus').innerText = '📍 เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง GPS';
-    }
-  });
-
   const form = document.getElementById('evaluationForm');
   const loading = document.getElementById('loading');
   const submitBtn = document.getElementById('submitBtn');
@@ -106,26 +62,25 @@
     submitBtn.style.display = 'none';
     loading.style.display = 'block';
 
+    // จัดรูปแบบข้อมูลเป็น JSON ให้ตรงกับที่ Google Apps Script ฝั่ง doPost(e) รอรับ
     const payload = {
       locationId: "LOC-001",
-      name: "ห้องน้ำสาธารณะ",
+      name: "ห้องน้ำสาธารณะเขตพญาไท",
       district: "พญาไท",
       healthyScore: document.getElementById('healthScore').value,
       safetyScore: document.getElementById('safetyScore').value,
       suggestion: document.getElementById('comment').value,
-      latitude: currentLat,
-      longitude: currentLng,
       deviceId: "WEB-" + Date.now()
     };
 
     fetch(scriptURL, { 
       method: 'POST', 
-      mode: 'no-cors',
+      mode: 'no-cors', // ป้องกันปัญหา CORS ของ Google Script
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
     .then(() => {
-      alert('ส่งแบบประเมินสำเร็จ! ระบบบันทึกข้อมูลเรียบร้อยแล้ว');
+      alert('ส่งแบบประเมินสำเร็จ! บันทึกลง Google Sheet เรียบร้อยแล้ว');
       form.reset();
       loading.style.display = 'none';
       submitBtn.style.display = 'block';
