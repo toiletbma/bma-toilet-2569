@@ -70,7 +70,6 @@
             margin-bottom: 5px;
         }
 
-        /* ปุ่มเลือกสีสันสดใส */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -146,7 +145,7 @@
         }
         textarea:focus { border-color: var(--color-green); outline: none; }
 
-        /* กล่องบอกชื่อสถานที่ (ย้ายมาไว้ล่างสุด) */
+        /* กล่องแสดงชื่อสถานที่ (อยู่ล่างสุด ก่อนปุ่มส่ง) */
         .location-box {
             background-color: #e2f7e4;
             border: 2px solid #81c784;
@@ -253,7 +252,7 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่ (ย้ายมาไว้ล่างสุด ก่อนปุ่มส่ง) -->
+        <!-- กล่องแสดงชื่อสถานที่ (อยู่ล่างสุด ก่อนปุ่มส่ง) -->
         <div class="location-box" id="locationStatus">
             📍 กำลังค้นหาชื่อสถานที่จาก GPS...
         </div>
