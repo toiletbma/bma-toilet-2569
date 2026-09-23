@@ -7,9 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-green: #28a745; /* เขียวสด */
-            --color-yellow: #ffc107; /* เหลืองสด */
-            --color-red: #dc3545;   /* แดงสด */
+            --color-green: #28a745;
+            --color-yellow: #ffc107;
+            --color-red: #dc3545;
             --bg-body: #f4f6f9;
             --bg-card: #ffffff;
             --text-main: #333333;
@@ -44,35 +44,12 @@
             line-height: 1.4;
         }
 
-        /* กล่องบอกสถานะสถานที่ */
-        .location-box {
-            background-color: #e2f7e4;
-            border: 2px solid #81c784;
-            color: #1b5e20;
-            padding: 15px;
-            border-radius: 15px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            text-align: center;
-            font-size: 16px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        .location-box.error {
-            background-color: #ffcdd2;
-            border: 2px solid #e57373;
-            color: #b71c1c;
-        }
-
         .section-card {
             border: 1px solid #e0e0e0;
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
             background-color: #ffffff;
-        }
-        .section-card:last-of-type {
-            margin-bottom: 25px;
         }
 
         .section-title {
@@ -129,7 +106,6 @@
             margin-top: 8px;
         }
 
-        /* ไอคอนวงกลมสี */
         .status-icon {
             width: 24px;
             height: 24px;
@@ -139,7 +115,6 @@
             border: 3px solid rgba(255,255,255,0.5);
         }
 
-        /* สไตล์เฉพาะของแต่ละปุ่ม */
         .option-btn.green { color: var(--color-green); }
         .option-btn.green .status-icon { background-color: var(--color-green); }
         .option-btn.green:hover { border-color: var(--color-green); background-color: #e8f5e9; }
@@ -171,6 +146,24 @@
         }
         textarea:focus { border-color: var(--color-green); outline: none; }
 
+        /* กล่องบอกชื่อสถานที่ (ย้ายมาไว้ล่างสุด) */
+        .location-box {
+            background-color: #e2f7e4;
+            border: 2px solid #81c784;
+            color: #1b5e20;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .location-box.error {
+            background-color: #ffcdd2;
+            border: 2px solid #e57373;
+            color: #b71c1c;
+        }
+
         button[type="submit"] {
             background-color: var(--color-green);
             color: white;
@@ -186,27 +179,9 @@
             font-family: 'Sarabun', sans-serif;
         }
         button[type="submit"]:hover { background-color: #1e7e34; transform: translateY(-2px); }
-        button[type="submit"]:active { transform: translateY(1px); }
         button:disabled { background-color: #b0bec5; cursor: not-allowed; box-shadow: none; }
 
         #loading { display: none; text-align: center; margin-top: 20px; color: var(--color-green); font-weight: 600; font-size: 16px; }
-        
-        /* Responsive ปรับขนาดหน้าจอเล็ก */
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            .container { padding: 20px; border-radius: 15px; }
-            h2 { font-size: 20px; }
-            .location-box { padding: 12px; font-size: 14px; }
-            .section-card { padding: 15px; border-radius: 12px; }
-            .section-title { font-size: 16px; }
-            .criteria-list { font-size: 14px; margin-left: 15px; }
-            .options-grid { gap: 8px; }
-            .option-btn { padding: 14px 2px; }
-            .option-label { font-size: 14px; margin-top: 5px; }
-            .status-icon { width: 20px; height: 20px; }
-            label { font-size: 14px; }
-            button[type="submit"] { padding: 15px; font-size: 16px; }
-        }
     </style>
 </head>
 <body>
@@ -214,10 +189,6 @@
 <div class="container">
     <h2>แบบประเมินความสะอาด<br>และความปลอดภัยห้องน้ำ กทม.</h2>
     
-    <div class="location-box" id="locationStatus">
-        📍 กำลังระบุตำแหน่งสถานที่ของคุณ...
-    </div>
-
     <form id="evaluationForm" onsubmit="submitForm(event)">
         
         <!-- ส่วนที่ 1: ความสะอาด -->
@@ -282,121 +253,76 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
+        <!-- กล่องแสดงชื่อสถานที่ (ย้ายมาไว้ล่างสุด ก่อนปุ่มส่ง) -->
+        <div class="location-box" id="locationStatus">
+            📍 กำลังค้นหาชื่อสถานที่จาก GPS...
+        </div>
+
         <button type="submit" id="submitBtn">ส่งแบบประเมิน</button>
         <div id="loading">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
     </form>
 </div>
 
 <script>
-    // URL Web App ล่าสุดที่เชื่อมกับ Google Sheet ใหม่
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaSRL3UP-GRijQ6xllycgGt8qnb3K-A2FzJt3GNfjzbRBngQ7UsuY3sSBMVrchIUTjNw/exec";
     
-    // ตัวแปรเก็บพิกัดล่าสุด
     let currentLat = null;
     let currentLng = null;
-    let watchId = null;
 
-    // ดึงพิกัด GPS อย่างต่อเนื่องทันทีที่โหลดหน้าเว็บ
     window.onload = function() {
-        startWatchingPosition();
-    };
-
-    function startWatchingPosition() {
         if (navigator.geolocation) {
-            document.getElementById("locationStatus").innerText = "📡 กำลังค้นหาสถานที่...";
-            // ใช้ watchPosition เพื่ออัปเดตพิกัดแบบเรียลไทม์
-            watchId = navigator.geolocation.watchPosition(function(position) {
+            navigator.geolocation.getCurrentPosition(function(position) {
                 currentLat = position.coords.latitude;
                 currentLng = position.coords.longitude;
-                
-                // ดึงชื่อสถานที่จากพิกัด
                 fetchLocationName(currentLat, currentLng);
             }, function(error) {
-                handleLocationError(error);
-            }, { 
-                enableHighAccuracy: true, 
-                timeout: 15000, 
-                maximumAge: 5000 
-            });
+                document.getElementById("locationStatus").innerText = "⚠️ ไม่สามารถเข้าถึง GPS ได้ กรุณาเปิดสิทธิ์ตำแหน่ง";
+                document.getElementById("locationStatus").classList.add('error');
+            }, { enableHighAccuracy: true, timeout: 15000 });
         } else {
-            document.getElementById("locationStatus").innerText = "⚠️ เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง";
+            document.getElementById("locationStatus").innerText = "⚠️ เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง";
             document.getElementById("locationStatus").classList.add('error');
         }
-    }
+    };
 
     function fetchLocationName(lat, lng) {
         fetch(`${SCRIPT_URL}?lat=${lat}&lng=${lng}`)
             .then(response => response.json())
             .then(data => {
-                if(data.location) {
-                    document.getElementById("locationStatus").innerText = "📍 สถานที่ใกล้เคียง: " + data.location;
+                if(data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง") {
+                    document.getElementById("locationStatus").innerText = "📍 สถานที่: " + data.location;
                     document.getElementById("locationStatus").classList.remove('error');
                 } else {
-                    document.getElementById("locationStatus").innerText = "📍 พิกัดของคุณ: " + lat.toFixed(6) + ", " + lng.toFixed(6);
+                    document.getElementById("locationStatus").innerText = "⚠️ ไม่พบชื่อสถานที่ในรัศมีที่กำหนด";
+                    document.getElementById("locationStatus").classList.add('error');
                 }
             })
             .catch(err => {
-                console.error(err);
-                document.getElementById("locationStatus").innerText = "📍 พิกัดของคุณ: " + lat.toFixed(6) + ", " + lng.toFixed(6);
+                document.getElementById("locationStatus").innerText = "⚠️ เกิดข้อผิดพลาดในการดึงชื่อสถานที่";
+                document.getElementById("locationStatus").classList.add('error');
             });
     }
 
-    function handleLocationError(error) {
-        let message = "";
-        switch(error.code) {
-            case error.PERMISSION_DENIED:
-                message = "⚠️ กรุณาอนุญาตให้เข้าถึงตำแหน่งเพื่อระบุสถานที่";
-                break;
-            case error.POSITION_UNAVAILABLE:
-                message = "⚠️ ไม่สามารถระบุตำแหน่งได้ในขณะนี้";
-                break;
-            case error.TIMEOUT:
-                message = "⏳ หมดเวลาค้นหาตำแหน่ง ลองใหม่อีกครั้ง";
-                break;
-            default:
-                message = "⚠️ เกิดข้อผิดพลาดในการระบุตำแหน่ง";
-                break;
-        }
-        document.getElementById("locationStatus").innerText = message;
-        document.getElementById("locationStatus").classList.add('error');
-        
-        // ใช้พิกัดกลางกรุงเทพฯ เป็นค่าสำรอง
-        currentLat = 13.7563;
-        currentLng = 100.5018;
-    }
-
-    // ฟังก์ชันจัดการปุ่มเลือกสี
     function selectOption(element, inputId, score) {
         document.getElementById(inputId).value = score;
-        
-        // ลบสถานะเลือกอันเก่าในกลุ่มเดียวกัน
         const parentCard = element.closest('.section-card');
         parentCard.querySelectorAll('.option-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
-        
-        // ใส่สถานะเลือกอันใหม่
         element.classList.add('selected');
     }
 
     function submitForm(event) {
         event.preventDefault();
         
-        // ถ้ายังไม่มีพิกัด ให้แจ้งเตือน
         if (currentLat === null || currentLng === null) {
-            if (navigator.geolocation) {
-                 document.getElementById("locationStatus").innerText = "📡 กำลังค้นหาสถานที่ กรุณารอสักครู่...";
-                 return; // หยุดการส่งไว้ก่อน
-            } else {
-                 alert("❌ ไม่สามารถระบุตำแหน่งได้ กรุณาเปิด GPS");
-                 return;
-            }
+            alert("❌ กำลังรอพิกัด GPS กรุณารอสักครู่แล้วลองใหม่อีกครั้ง");
+            return;
         }
 
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("loading").style.display = "block";
 
-        // รวบรวมข้อมูลทั้งหมดรวมถึงพิกัดล่าสุด
         const formData = {
             lat: currentLat,
             lng: currentLng,
@@ -405,7 +331,6 @@
             comment: document.getElementById("comment").value || "-"
         };
 
-        // ส่งข้อมูลไปยัง Google Apps Script
         fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
@@ -415,16 +340,13 @@
             body: JSON.stringify(formData)
         })
         .then(() => {
-            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ! ขอบคุณสำหรับความคิดเห็นครับ");
+            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
             document.getElementById("evaluationForm").reset();
             document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
-            // รีเซ็ตข้อความสถานที่
-            document.getElementById("locationStatus").innerText = "📍 กำลังระบุตำแหน่งสถานที่ของคุณ...";
         })
         .catch(error => {
-            console.error("Error:", error);
             alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
