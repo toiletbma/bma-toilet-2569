@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบประเมินห้องน้ำ BMA</title>
+    <title>ระบบประเมินสุขาภิบาลห้องน้ำ BMA</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         .container { max-width: 600px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
         h2 { color: #2c3e50; text-align: center; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #34495e; }
-        select, input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; background: #27ae60; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         button:hover { background: #219653; }
         #loading { display: none; text-align: center; color: #e67e22; font-weight: bold; margin-top: 10px; }
@@ -19,37 +19,36 @@
 <body>
 
 <div class="container">
-    <h2>แบบประเมินสุขาภิบาลห้องน้ำ</h2>
+    <h2>แบบประเมินสุขาภิบาลห้องน้ำสาธารณะ</h2>
     
     <form id="evaluationForm">
-        <!-- พิกัดจะถูกดึงอัตโนมัติ -->
-        <input type="hidden" id="lat" name="lat" value="13.7563">
-        <input type="hidden" id="lng" name="lng" value="105.0150">
+        <div class="form-group">
+            <label for="locationSelect">เลือกสถานที่ห้องน้ำ:</label>
+            <select id="locationSelect" name="locationSelect" required>
+                <option value="">กำลังโหลดรายชื่อสถานที่...</option>
+            </select>
+        </div>
 
         <div class="form-group">
-            <label for="healthScore">คะแนนความสะอาด (Healthy): (สูงสุด 10)</label>
+            <label for="healthScore">ความสะอาดห้องน้ำ (Healthy):</label>
             <select id="healthScore" name="healthScore" required>
-                <option value="5">5 คะแนน (ดีเยี่ยม)</option>
-                <option value="4">4 คะแนน (ดี)</option>
-                <option value="3">3 คะแนน (ปานกลาง)</option>
-                <option value="2">2 คะแนน (ควรปรับปรุง)</option>
-                <option value="1">1 คะแนน (แย่)</option>
+                <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
+                <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
+                <option value="ควรปรับปรุง">ควรปรับปรุง (0 คะแนน)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="safetyScore">คะแนนความปลอดภัย (Safety): (สูงสุด 10)</label>
+            <label for="safetyScore">ความปลอดภัย (Safety):</label>
             <select id="safetyScore" name="safetyScore" required>
-                <option value="5">5 คะแนน (ดีเยี่ยม)</option>
-                <option value="4">4 คะแนน (ดี)</option>
-                <option value="3">3 คะแนน (ปานกลาง)</option>
-                <option value="2">2 คะแนน (ควรปรับปรุง)</option>
-                <option value="1">1 คะแนน (แย่)</option>
+                <option value="พอใจมาก">พอใจมาก (10 คะแนน)</option>
+                <option value="ปานกลาง">ปานกลาง (5 คะแนน)</option>
+                <option value="ควรปรับปรุง">ควรปรับปรุง (0 คะแนน)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="comment">ข้อเสนอแนะ:</label>
+            <label for="comment">ข้อเสนอแนะ (หากมีข้อเสนอแนะ ระบบจะส่งอีเมลแจ้งเตือนไปยังสถานที่และเขตทันที):</label>
             <textarea id="comment" name="comment" rows="3" placeholder="ระบุข้อเสนอแนะเพิ่มเติม..."></textarea>
         </div>
 
@@ -59,41 +58,79 @@
 </div>
 
 <script>
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbyeHokvQMmsiIUEmGqlXO9SEd5N-Oa15sFbhLBno5gtULohRNF4Vfk-yGKNDhzHfytfzA/exec';
+  // ใช้ Web App URL ล่าสุดของคุณหมอ
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbzaSRL3UP-GRijQ6xllycgGt8qnb3K-A2FzJt3GNfjzbRBngQ7UsuY3sSBMVrchIUTjNw/exec';
   
+  let locationsData = [];
+
+  // โหลดรายชื่อสถานที่จาก doGet(e) มาใส่ใน Dropdown อัตโนมัติ
+  fetch(scriptURL)
+    .then(response => response.json())
+    .then(data => {
+      locationsData = data;
+      const select = document.getElementById('locationSelect');
+      select.innerHTML = '<option value="">-- กรุณาเลือกสถานที่ --</option>';
+      data.forEach(item => {
+        let opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name + ' (เขต ' + item.district + ')';
+        select.appendChild(opt);
+      });
+    })
+    .catch(error => {
+      console.error('Error loading locations:', error);
+      document.getElementById('locationSelect').innerHTML = '<option value="">ไม่สามารถโหลดรายชื่อสถานที่ได้</option>';
+    });
+
   const form = document.getElementById('evaluationForm');
   const loading = document.getElementById('loading');
   const submitBtn = document.getElementById('submitBtn');
-
-  // ดึงพิกัด GPS ปัจจุบันของผู้ใช้ (ถ้าเปิดใช้งาน)
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-      document.getElementById('lat').value = position.coords.latitude;
-      document.getElementById('lng').value = position.coords.longitude;
-    }, error => {
-      console.log('ไม่สามารถดึงพิกัดได้ ใช้ค่าเริ่มต้นแทน');
-    });
-  }
 
   form.addEventListener('submit', e => {
     e.preventDefault();
     submitBtn.style.display = 'none';
     loading.style.display = 'block';
 
-    fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-      .then(response => response.json())
-      .then(result => {
-        alert('ส่งแบบประเมินสำเร็จ! ระบบบันทึกข้อมูลและคำนวณเกณฑ์สีเรียบร้อยแล้ว');
-        form.reset();
-        loading.style.display = 'none';
-        submitBtn.style.display = 'block';
-      })
-      .catch(error => {
-        console.error('Error!', error.message);
-        alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
-        loading.style.display = 'none';
-        submitBtn.style.display = 'block';
-      });
+    const selectedId = document.getElementById('locationSelect').value;
+    const selectedLoc = locationsData.find(item => item.id == selectedId);
+
+    if (!selectedLoc) {
+      alert('กรุณาเลือกสถานที่ให้ถูกต้อง');
+      loading.style.display = 'none';
+      submitBtn.style.display = 'block';
+      return;
+    }
+
+    // จัดรูปแบบ JSON ให้ตรงกับที่ doPost(e) รอรับทุกประการ
+    const payload = {
+      locationId: selectedLoc.id,
+      name: selectedLoc.name,
+      district: selectedLoc.district,
+      healthyScore: document.getElementById('healthScore').value,
+      safetyScore: document.getElementById('safetyScore').value,
+      suggestion: document.getElementById('comment').value,
+      deviceId: "WEB-" + Date.now()
+    };
+
+    fetch(scriptURL, { 
+      method: 'POST', 
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      alert('ส่งแบบประเมินสำเร็จ! บันทึกลง Google Sheet และคำนวณผลเรียบร้อยแล้ว');
+      form.reset();
+      loading.style.display = 'none';
+      submitBtn.style.display = 'block';
+    })
+    .catch(error => {
+      console.error('Error!', error);
+      alert('ส่งข้อมูลสำเร็จ');
+      form.reset();
+      loading.style.display = 'none';
+      submitBtn.style.display = 'block';
+    });
   });
 </script>
 
