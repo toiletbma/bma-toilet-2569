@@ -1,1 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบประเมินสุขาภิบาลห้องน้ำ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h2 {
+            text-align: center;
+            color: #2b3a4a;
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .location-box {
+            background-color: #e8f5e9;
+            border: 2px solid #81c784;
+            color: #1b5e20;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .location-box.error {
+            background-color: #ffebee;
+            border-color: #e57373;
+            color: #b71c1c;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2b3a4a;
+            font-size: 16px;
+        }
+        select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: 'Sarabun', sans-serif;
+            background-color: #fff;
+        }
+        select:focus, textarea:focus {
+            border-color: #198754;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        button[type="submit"] {
+            background-color: #198754;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+            margin-top: 10px;
+        }
+        button[type="submit"]:hover {
+            background-color: #157347;
+        }
+        button:disabled {
+            background-color: #b0bec5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .kpi-box {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 25px;
+            background-color: #fafafa;
+        }
+        .kpi-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #495057;
+            font-size: 15px;
+        }
+        .kpi-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .badge.green { background-color: #198754; }
+        .badge.yellow { background-color: #ffc107; color: #333; }
+        .badge.red { background-color: #dc3545; }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            color: #198754;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h2>แบบประเมินสุขาภิบาลห้องน้ำ</h2>
+
+    <!-- กล่องแสดงสถานะสถานที่ตามพิกัด -->
+    <div class="location-box" id="locationStatus">
+        📍 กำลังประเมินสถานที่:<br><b>กำลังค้นหาชื่อสถานที่...</b>
+    </div>
+
+    <form id="evaluationForm" onsubmit="submitForm(event)">
+        
+        <!-- คะแนนความสะอาด -->
+        <div class="form-group">
+            <label for="healthScore">คะแนนความสะอาด (Healthy):</label>
+            <select id="healthScore" required>
+                <option value="10">พอใจมาก (10 คะแนน)</option>
+                <option value="5">ปานกลาง (5 คะแนน)</option>
+                <option value="0">ควรปรับปรุง (0 คะแนน)</option>
+            </select>
+        </div>
+
+        <!-- คะแนนความปลอดภัย -->
+        <div class="form-group">
+            <label for="safetyScore">คะแนนความปลอดภัย (Safety):</label>
+            <select id="safetyScore" required>
+                <option value="10">พอใจมาก (10 คะแนน)</option>
+                <option value="5">ปานกลาง (5 คะแนน)</option>
+                <option value="0">ควรปรับปรุง (0 คะแนน)</option>
+            </select>
+        </div>
+
+        <!-- ข้อเสนอแนะ -->
+        <div class="form-group">
+            <label for="comment">ข้อเสนอแนะ:</label>
+            <textarea id="comment" placeholder="ระบุข้อเสนอแนะเพิ่มเติม . . ."></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn" disabled>ส่งแบบประเมิน</button>
+        <div id="loading">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
+    </form>
+
+    <!-- เกณฑ์การประเมิน KPI -->
+    <div class="kpi-box">
+        <div class="kpi-title">เกณฑ์การประเมินสถานะ KPI</div>
+        <div class="kpi-badges">
+            <div class="badge green">ผ่านปกติ (เขียว)</div>
+            <div class="badge yellow">อนุโลมเหลือง</div>
+            <div class="badge red">ไม่ผ่านเกณฑ์ (แดง)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ใช้ลิงก์ Apps Script ของคุณหมอ
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzO14Jvr9LBKsROYadoK5PpRStVSvMOBFtZs9AurAN02NtdIFRVu4EETbV42MtlY8eSDw/exec";
+    
+    let currentLat = null;
+    let currentLng = null;
+    let resolvedLocationName = "";
+    let deviceId = "";
+
+    function getDeviceId() {
+        let id = localStorage.getItem('bma_toilet_device_id');
+        if (!id) {
+            id = 'DEV-' + Math.random().toString(36).substring(2, 9).toUpperCase() + '-' + Date.now();
+            localStorage.setItem('bma_toilet_device_id', id);
+        }
+        return id;
+    }
+
+    window.onload = function() {
+        deviceId = getDeviceId();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                currentLat = position.coords.latitude;
+                currentLng = position.coords.longitude;
+                checkLocationInSheet(currentLat, currentLng);
+            }, function(error) {
+                const box = document.getElementById("locationStatus");
+                box.innerHTML = "📍 ไม่สามารถเข้าถึงพิกัด GPS ได้<br><b>ไม่อนุญาตให้ส่งแบบประเมิน</b>";
+                box.classList.add("error");
+                document.getElementById("submitBtn").disabled = true;
+            }, { enableHighAccuracy: true, timeout: 15000 });
+        } else {
+            const box = document.getElementById("locationStatus");
+            box.innerHTML = "📍 เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง";
+            box.classList.add("error");
+            document.getElementById("submitBtn").disabled = true;
+        }
+    };
+
+    function checkLocationInSheet(lat, lng) {
+        fetch(`${SCRIPT_URL}?lat=${lat}&lng=${lng}`)
+            .then(res => res.json())
+            .then(data => {
+                const box = document.getElementById("locationStatus");
+                if (data && data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง" && data.distanceMeters <= 100) {
+                    resolvedLocationName = data.location;
+                    box.innerHTML = `📍 กำลังประเมินสถานที่:<br><b>${resolvedLocationName}</b>`;
+                    box.classList.remove("error");
+                    document.getElementById("submitBtn").disabled = false;
+                } else {
+                    box.innerHTML = `📍 ไม่พบสถานที่ในรัศมี 100 เมตร<br><b>(ห่างจากจุดประเมิน ${data.distanceMeters || '?'} เมตร)</b>`;
+                    box.classList.add("error");
+                    document.getElementById("submitBtn").disabled = true;
+                }
+            })
+            .catch(err => {
+                const box = document.getElementById("locationStatus");
+                box.innerHTML = "📍 เกิดข้อผิดพลาดในการตรวจสอบพิกัด";
+                box.classList.add("error");
+                document.getElementById("submitBtn").disabled = true;
+            });
+    }
+
+    function submitForm(event) {
+        event.preventDefault();
+
+        if (currentLat === null || currentLng === null) {
+            alert("❌ ไม่พบพิกัด GPS กรุณาเปิดตำแหน่งและลองใหม่อีกครั้ง");
+            return;
+        }
+
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("loading").style.display = "block";
+
+        const formData = {
+            lat: currentLat,
+            lng: currentLng,
+            healthScore: document.getElementById("healthScore").value,
+            safetyScore: document.getElementById("safetyScore").value,
+            comment: document.getElementById("comment").value || "-",
+            deviceId: deviceId
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+          mode: "no-cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
+            document.getElementById("evaluationForm").reset();
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("loading").style.display = "none";
+        })
+        .catch(error => {
+            alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("loading").style.display = "none";
+        });
+    }
+</script>
+
+</body>
+</html>
