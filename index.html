@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>แบบประเมินความสะอาดและความปลอดภัยห้องน้ำ กทม.</title>
+    <title>แบบประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-green: #28a745;
-            --color-yellow: #ffc107;
-            --color-red: #dc3545;
             --bg-body: #f8f9fa;
             --bg-card: #ffffff;
             --text-main: #333333;
@@ -43,24 +40,6 @@
             line-height: 1.4;
         }
 
-        /* กล่องแสดงชื่อสถานที่ด้านบน */
-        .location-box {
-            background-color: #e8f5e9;
-            border: 2px solid #81c784;
-            color: #1b5e20;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            text-align: center;
-            font-size: 16px;
-        }
-        .location-box.error {
-            background-color: #ffebee;
-            border-color: #e57373;
-            color: #b71c1c;
-        }
-
         .section-card {
             border: 1px solid #e0e0e0;
             border-radius: 12px;
@@ -87,15 +66,16 @@
             margin-bottom: 4px;
         }
 
+        /* ปรับสไตล์ปุ่มเลือกให้มีสีสันและโดดเด่นขึ้น */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .option-btn {
-            border: 2px solid #dee2e6;
-            background: #f8f9fa;
+            border: 2px solid #cbd5e1;
+            background: #f8fafc;
             border-radius: 10px;
             padding: 12px 5px;
             text-align: center;
@@ -114,16 +94,37 @@
             display: block;
             font-weight: 600;
             font-size: 15px;
-            color: #495057;
+            color: #334155;
         }
 
-        .option-btn.selected {
-            border-color: var(--color-green);
-            background-color: #e8f5e9;
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+        /* สีสันเมื่อเลือกแต่ละปุ่ม */
+        .option-btn.selected-happy {
+            border-color: #10b981;
+            background-color: #d1fae5;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
         }
-        .option-btn.selected .option-label {
-            color: #1b5e20;
+        .option-btn.selected-happy .option-label {
+            color: #065f46;
+            font-weight: 700;
+        }
+
+        .option-btn.selected-neutral {
+            border-color: #f59e0b;
+            background-color: #fef3c7;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+        .option-btn.selected-neutral .option-label {
+            color: #b45309;
+            font-weight: 700;
+        }
+
+        .option-btn.selected-bad {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+        .option-btn.selected-bad .option-label {
+            color: #991b1b;
             font-weight: 700;
         }
 
@@ -153,6 +154,24 @@
         }
         textarea:focus { border-color: #198754; outline: none; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15); }
 
+        /* กล่องแสดงชื่อสถานที่ด้านล่างสุดก่อนปุ่มส่ง */
+        .location-box {
+            background-color: #e8f5e9;
+            border: 2px solid #81c784;
+            color: #1b5e20;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .location-box.error {
+            background-color: #ffebee;
+            border-color: #e57373;
+            color: #b71c1c;
+        }
+
         button[type="submit"] {
             background-color: #198754;
             color: white;
@@ -165,13 +184,12 @@
             cursor: pointer;
             transition: background 0.2s;
             box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
-            margin-top: 10px;
             font-family: 'Sarabun', sans-serif;
         }
         button[type="submit"]:hover { background-color: #157347; }
         button:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; }
 
-        /* เกณฑ์ KPI ด้านล่าง */
+        /* เกณฑ์ KPI ด้านล่างสุด */
         .kpi-box {
             border: 2px solid #e0e0e0;
             border-radius: 12px;
@@ -201,20 +219,9 @@
             font-size: 13px;
             box-shadow: 0 3px 8px rgba(0,0,0,0.15);
         }
-        .badge.green { 
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            border: 1px solid #1e8449;
-        } 
-        .badge.yellow { 
-            background: linear-gradient(135deg, #f1c40f, #f39c12);
-            color: #ffffff;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            border: 1px solid #d68910;
-        } 
-        .badge.red { 
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            border: 1px solid #922b21;
-        }
+        .badge.green { background: linear-gradient(135deg, #2ecc71, #27ae60); border: 1px solid #1e8449; } 
+        .badge.yellow { background: linear-gradient(135deg, #f1c40f, #f39c12); color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #d68910; } 
+        .badge.red { background: linear-gradient(135deg, #e74c3c, #c0392b); border: 1px solid #922b21; }
 
         #loading { display: none; text-align: center; margin-top: 15px; color: #198754; font-weight: 600; }
     </style>
@@ -224,11 +231,6 @@
 <div class="container">
     <h2>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
     
-    <!-- กล่องแสดงชื่อสถานที่จากพิกัด -->
-    <div class="location-box" id="locationStatus">
-        📍 กำลังประเมินสถานที่:<br><b>กำลังค้นหาชื่อสถานที่...</b>
-    </div>
-
     <form id="evaluationForm" onsubmit="submitForm(event)">
         
         <!-- ส่วนที่ 1: ความสะอาด -->
@@ -240,15 +242,15 @@
                 <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
             </ul>
             <div class="options-grid">
-                <label class="option-btn" onclick="selectOption(this, 'healthScore', '10')">
+                <label class="option-btn" onclick="selectOption(this, 'healthScore', '10', 'happy')">
                     <span class="option-label">พอใจมาก</span>
                     <input type="radio" name="health" value="10" required>
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'healthScore', '5')">
+                <label class="option-btn" onclick="selectOption(this, 'healthScore', '5', 'neutral')">
                     <span class="option-label">ปานกลาง</span>
                     <input type="radio" name="health" value="5">
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'healthScore', '0')">
+                <label class="option-btn" onclick="selectOption(this, 'healthScore', '0', 'bad')">
                     <span class="option-label">ควรปรับปรุง</span>
                     <input type="radio" name="health" value="0">
                 </label>
@@ -265,15 +267,15 @@
                 <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
             </ul>
             <div class="options-grid">
-                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '10')">
+                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '10', 'happy')">
                     <span class="option-label">พอใจมาก</span>
                     <input type="radio" name="safety" value="10" required>
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '5')">
+                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '5', 'neutral')">
                     <span class="option-label">ปานกลาง</span>
                     <input type="radio" name="safety" value="5">
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '0')">
+                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '0', 'bad')">
                     <span class="option-label">ควรปรับปรุง</span>
                     <input type="radio" name="safety" value="0">
                 </label>
@@ -285,6 +287,11 @@
         <div class="form-group">
             <label for="comment">ข้อเสนอแนะเพิ่มเติม</label>
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
+        </div>
+
+        <!-- กล่องแสดงชื่อสถานที่ (ย้ายมาไว้ด้านล่างตามสั่ง) -->
+        <div class="location-box" id="locationStatus">
+            📍 สถานที่ใกล้เคียง (ในระยะ 100 ม.):<br><b>กำลังค้นหาชื่อสถานที่...</b>
         </div>
 
         <button type="submit" id="submitBtn" disabled>ส่งแบบประเมิน</button>
@@ -365,13 +372,15 @@
             });
     }
 
-    function selectOption(element, inputId, score) {
+    function selectOption(element, inputId, score, type) {
         document.getElementById(inputId).value = score;
         const parentCard = element.closest('.section-card');
         parentCard.querySelectorAll('.option-btn').forEach(btn => {
-            btn.classList.remove('selected');
+            btn.classList.remove('selected-happy', 'selected-neutral', 'selected-bad');
         });
-        element.classList.add('selected');
+        if (type === 'happy') element.classList.add('selected-happy');
+        if (type === 'neutral') element.classList.add('selected-neutral');
+        if (type === 'bad') element.classList.add('selected-bad');
     }
 
     function submitForm(event) {
@@ -405,7 +414,7 @@
         .then(() => {
             alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
             document.getElementById("evaluationForm").reset();
-            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected-happy', 'selected-neutral', 'selected-bad'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
         })
