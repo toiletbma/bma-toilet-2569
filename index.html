@@ -2,32 +2,48 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แบบประเมินสุขาภิบาลห้องน้ำ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>แบบประเมินความสะอาดและความปลอดภัยห้องน้ำ กทม.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-green: #28a745;
+            --color-yellow: #ffc107;
+            --color-red: #dc3545;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-main: #333333;
+            --text-muted: #6c757d;
+        }
+
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--bg-body);
             margin: 0;
             padding: 20px;
-            color: #333;
+            color: var(--text-main);
+            box-sizing: border-box;
         }
+
         .container {
             max-width: 650px;
             margin: 0 auto;
-            background: #fff;
+            background: var(--bg-card);
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
+
         h2 {
             text-align: center;
             color: #2b3a4a;
             margin-bottom: 25px;
             font-size: 24px;
             font-weight: 600;
+            line-height: 1.4;
         }
+
+        /* กล่องแสดงชื่อสถานที่ด้านบน */
         .location-box {
             background-color: #e8f5e9;
             border: 2px solid #81c784;
@@ -44,17 +60,86 @@
             border-color: #e57373;
             color: #b71c1c;
         }
-        .form-group {
+
+        .section-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 20px;
+            background-color: #ffffff;
         }
-        label {
+
+        .section-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2b3a4a;
+        }
+
+        .criteria-list {
+            margin: 0 0 15px 20px;
+            padding: 0;
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .criteria-list li {
+            margin-bottom: 4px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .option-btn {
+            border: 2px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Sarabun', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn input { display: none; }
+
+        .option-label {
             display: block;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: #2b3a4a;
-            font-size: 16px;
+            font-size: 15px;
+            color: #495057;
         }
-        select, textarea {
+
+        .option-btn.selected {
+            border-color: var(--color-green);
+            background-color: #e8f5e9;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+        }
+        .option-btn.selected .option-label {
+            color: #1b5e20;
+            font-weight: 700;
+        }
+
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: #2b3a4a; 
+            font-size: 16px; 
+        }
+        
+        textarea {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ced4da;
@@ -62,17 +147,12 @@
             box-sizing: border-box;
             font-size: 15px;
             font-family: 'Sarabun', sans-serif;
-            background-color: #fff;
-        }
-        select:focus, textarea:focus {
-            border-color: #198754;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
-        }
-        textarea {
             resize: vertical;
-            height: 100px;
+            height: 90px;
+            transition: border-color 0.2s;
         }
+        textarea:focus { border-color: #198754; outline: none; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15); }
+
         button[type="submit"] {
             background-color: #198754;
             color: white;
@@ -86,27 +166,25 @@
             transition: background 0.2s;
             box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
             margin-top: 10px;
+            font-family: 'Sarabun', sans-serif;
         }
-        button[type="submit"]:hover {
-            background-color: #157347;
-        }
-        button:disabled {
-            background-color: #b0bec5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        button[type="submit"]:hover { background-color: #157347; }
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; }
+
+        /* เกณฑ์ KPI ด้านล่าง */
         .kpi-box {
-            border: 1px solid #dee2e6;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
             padding: 15px;
             text-align: center;
             margin-top: 25px;
-            background-color: #fafafa;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
         }
         .kpi-title {
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 12px;
-            color: #495057;
+            color: #212529;
             font-size: 15px;
         }
         .kpi-badges {
@@ -119,57 +197,94 @@
             padding: 8px 16px;
             border-radius: 20px;
             color: white;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
         }
-        .badge.green { background-color: #198754; }
-        .badge.yellow { background-color: #ffc107; color: #333; }
-        .badge.red { background-color: #dc3545; }
-        #loading {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-            color: #198754;
-            font-weight: 600;
+        .badge.green { 
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: 1px solid #1e8449;
+        } 
+        .badge.yellow { 
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            border: 1px solid #d68910;
+        } 
+        .badge.red { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border: 1px solid #922b21;
         }
+
+        #loading { display: none; text-align: center; margin-top: 15px; color: #198754; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>แบบประเมินสุขาภิบาลห้องน้ำ</h2>
-
-    <!-- กล่องแสดงสถานะสถานที่ตามพิกัด -->
+    <h2>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
+    
+    <!-- กล่องแสดงชื่อสถานที่จากพิกัด -->
     <div class="location-box" id="locationStatus">
         📍 กำลังประเมินสถานที่:<br><b>กำลังค้นหาชื่อสถานที่...</b>
     </div>
 
     <form id="evaluationForm" onsubmit="submitForm(event)">
         
-        <!-- คะแนนความสะอาด -->
-        <div class="form-group">
-            <label for="healthScore">คะแนนความสะอาด (Healthy):</label>
-            <select id="healthScore" required>
-                <option value="10">พอใจมาก (10 คะแนน)</option>
-                <option value="5">ปานกลาง (5 คะแนน)</option>
-                <option value="0">ควรปรับปรุง (0 คะแนน)</option>
-            </select>
+        <!-- ส่วนที่ 1: ความสะอาด -->
+        <div class="section-card">
+            <div class="section-title">1. ด้านความสะอาด (Healthy)</div>
+            <ul class="criteria-list">
+                <li>ความสะอาดของห้องน้ำ</li>
+                <li>อุปกรณ์ครบและใช้งานได้ดี</li>
+                <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
+            </ul>
+            <div class="options-grid">
+                <label class="option-btn" onclick="selectOption(this, 'healthScore', '10')">
+                    <span class="option-label">พอใจมาก</span>
+                    <input type="radio" name="health" value="10" required>
+                </label>
+                <label class="option-btn" onclick="selectOption(this, 'healthScore', '5')">
+                    <span class="option-label">ปานกลาง</span>
+                    <input type="radio" name="health" value="5">
+                </label>
+                <label class="option-btn" onclick="selectOption(this, 'healthScore', '0')">
+                    <span class="option-label">ควรปรับปรุง</span>
+                    <input type="radio" name="health" value="0">
+                </label>
+            </div>
+            <input type="hidden" id="healthScore" required>
         </div>
 
-        <!-- คะแนนความปลอดภัย -->
-        <div class="form-group">
-            <label for="safetyScore">คะแนนความปลอดภัย (Safety):</label>
-            <select id="safetyScore" required>
-                <option value="10">พอใจมาก (10 คะแนน)</option>
-                <option value="5">ปานกลาง (5 คะแนน)</option>
-                <option value="0">ควรปรับปรุง (0 คะแนน)</option>
-            </select>
+        <!-- ส่วนที่ 2: ความปลอดภัย -->
+        <div class="section-card">
+            <div class="section-title">2. ด้านความปลอดภัย (Safety)</div>
+            <ul class="criteria-list">
+                <li>มีแสงสว่างเพียงพอ</li>
+                <li>พื้นห้องน้ำแห้ง</li>
+                <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
+            </ul>
+            <div class="options-grid">
+                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '10')">
+                    <span class="option-label">พอใจมาก</span>
+                    <input type="radio" name="safety" value="10" required>
+                </label>
+                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '5')">
+                    <span class="option-label">ปานกลาง</span>
+                    <input type="radio" name="safety" value="5">
+                </label>
+                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '0')">
+                    <span class="option-label">ควรปรับปรุง</span>
+                    <input type="radio" name="safety" value="0">
+                </label>
+            </div>
+            <input type="hidden" id="safetyScore" required>
         </div>
 
         <!-- ข้อเสนอแนะ -->
         <div class="form-group">
-            <label for="comment">ข้อเสนอแนะ:</label>
-            <textarea id="comment" placeholder="ระบุข้อเสนอแนะเพิ่มเติม . . ."></textarea>
+            <label for="comment">ข้อเสนอแนะเพิ่มเติม</label>
+            <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
         <button type="submit" id="submitBtn" disabled>ส่งแบบประเมิน</button>
@@ -180,15 +295,14 @@
     <div class="kpi-box">
         <div class="kpi-title">เกณฑ์การประเมินสถานะ KPI</div>
         <div class="kpi-badges">
-            <div class="badge green">ผ่านปกติ (เขียว)</div>
-            <div class="badge yellow">อนุโลมเหลือง</div>
-            <div class="badge red">ไม่ผ่านเกณฑ์ (แดง)</div>
+            <div class="badge green">🟢 ผ่านปกติ (เขียว)</div>
+            <div class="badge yellow">🟡 อนุโลมเหลือง</div>
+            <div class="badge red">🔴 ไม่ผ่านเกณฑ์ (แดง)</div>
         </div>
     </div>
 </div>
 
 <script>
-    // ใช้ลิงก์ Apps Script ของคุณหมอ
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzO14Jvr9LBKsROYadoK5PpRStVSvMOBFtZs9AurAN02NtdIFRVu4EETbV42MtlY8eSDw/exec";
     
     let currentLat = null;
@@ -234,7 +348,7 @@
                 const box = document.getElementById("locationStatus");
                 if (data && data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง" && data.distanceMeters <= 100) {
                     resolvedLocationName = data.location;
-                    box.innerHTML = `📍 กำลังประเมินสถานที่:<br><b>${resolvedLocationName}</b>`;
+                    box.innerHTML = `📍 สถานที่ใกล้เคียง (ในระยะ 100 ม.):<br><b>${resolvedLocationName}</b>`;
                     box.classList.remove("error");
                     document.getElementById("submitBtn").disabled = false;
                 } else {
@@ -249,6 +363,15 @@
                 box.classList.add("error");
                 document.getElementById("submitBtn").disabled = true;
             });
+    }
+
+    function selectOption(element, inputId, score) {
+        document.getElementById(inputId).value = score;
+        const parentCard = element.closest('.section-card');
+        parentCard.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        element.classList.add('selected');
     }
 
     function submitForm(event) {
@@ -273,7 +396,7 @@
 
         fetch(SCRIPT_URL, {
             method: "POST",
-          mode: "no-cors",
+            mode: "no-cors",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -282,6 +405,7 @@
         .then(() => {
             alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
             document.getElementById("evaluationForm").reset();
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
         })
