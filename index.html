@@ -73,10 +73,8 @@
         }
 
         .option-btn {
-            border: 2px solid #cbd5e1;
-            background: #f8fafc;
             border-radius: 10px;
-            padding: 12px 5px;
+            padding: 14px 5px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -85,47 +83,50 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            border: 2px solid transparent;
         }
         
         .option-btn input { display: none; }
 
         .option-label {
             display: block;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 15px;
-            color: #334155;
         }
 
-        /* สีสันปุ่มเลือกแบบชัดเจน */
-        .option-btn.selected-happy {
-            border-color: #10b981;
+        /* กำหนดสีประจำตัวปุ่มแบบถาวร */
+        .btn-happy {
             background-color: #d1fae5;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            border-color: #34d399;
         }
-        .option-btn.selected-happy .option-label {
+        .btn-happy .option-label {
             color: #065f46;
-            font-weight: 700;
         }
 
-        .option-btn.selected-neutral {
-            border-color: #f59e0b;
+        .btn-neutral {
             background-color: #fef3c7;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+            border-color: #fbbf24;
         }
-        .option-btn.selected-neutral .option-label {
-            color: #b45309;
-            font-weight: 700;
+        .btn-neutral .option-label {
+            color: #92400e;
         }
 
-        .option-btn.selected-bad {
-            border-color: #ef4444;
+        .btn-bad {
             background-color: #fee2e2;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+            border-color: #f87171;
         }
-        .option-btn.selected-bad .option-label {
+        .btn-bad .option-label {
             color: #991b1b;
-            font-weight: 700;
         }
+
+        /* สถานะตอนที่ถูกเลือก (เพิ่มความเด่นด้วยเงาหรือกรอบหนาขึ้น) */
+        .option-btn.selected {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+            transform: scale(1.02);
+        }
+        .btn-happy.selected { border-color: #059669; }
+        .btn-neutral.selected { border-color: #d97706; }
+        .btn-bad.selected { border-color: #dc2626; }
 
         .form-group { 
             margin-bottom: 20px; 
@@ -153,7 +154,7 @@
         }
         textarea:focus { border-color: #198754; outline: none; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15); }
 
-        /* กล่องแสดงชื่อสถานที่ด้านล่างสุดตามสั่ง */
+        /* กล่องแสดงชื่อสถานที่ด้านล่างสุดก่อนปุ่มส่ง */
         .location-box {
             background-color: #e8f5e9;
             border: 2px solid #81c784;
@@ -240,15 +241,15 @@
                 <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
             </ul>
             <div class="options-grid">
-                <label class="option-btn" onclick="selectOption(this, 'healthScore', '10', 'happy')">
+                <label class="option-btn btn-happy" onclick="selectOption(this, 'healthScore', '10')">
                     <span class="option-label">พอใจมาก</span>
                     <input type="radio" name="health" value="10" required>
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'healthScore', '5', 'neutral')">
+                <label class="option-btn btn-neutral" onclick="selectOption(this, 'healthScore', '5')">
                     <span class="option-label">ปานกลาง</span>
                     <input type="radio" name="health" value="5">
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'healthScore', '0', 'bad')">
+                <label class="option-btn btn-bad" onclick="selectOption(this, 'healthScore', '0')">
                     <span class="option-label">ควรปรับปรุง</span>
                     <input type="radio" name="health" value="0">
                 </label>
@@ -265,15 +266,15 @@
                 <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
             </ul>
             <div class="options-grid">
-                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '10', 'happy')">
+                <label class="option-btn btn-happy" onclick="selectOption(this, 'safetyScore', '10')">
                     <span class="option-label">พอใจมาก</span>
                     <input type="radio" name="safety" value="10" required>
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '5', 'neutral')">
+                <label class="option-btn btn-neutral" onclick="selectOption(this, 'safetyScore', '5')">
                     <span class="option-label">ปานกลาง</span>
                     <input type="radio" name="safety" value="5">
                 </label>
-                <label class="option-btn" onclick="selectOption(this, 'safetyScore', '0', 'bad')">
+                <label class="option-btn btn-bad" onclick="selectOption(this, 'safetyScore', '0')">
                     <span class="option-label">ควรปรับปรุง</span>
                     <input type="radio" name="safety" value="0">
                 </label>
@@ -287,7 +288,7 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่ (อยู่ด้านล่างสุดก่อนปุ่มส่ง) -->
+        <!-- กล่องแสดงชื่อสถานที่ (ย้ายมาไว้ด้านล่างสุดตามสั่ง) -->
         <div class="location-box" id="locationStatus">
             📍 สถานที่ใกล้เคียง (ในระยะ 100 ม.):<br><b>กำลังค้นหาชื่อสถานที่...</b>
         </div>
@@ -369,15 +370,13 @@
             });
     }
 
-    function selectOption(element, inputId, score, type) {
+    function selectOption(element, inputId, score) {
         document.getElementById(inputId).value = score;
         const parentCard = element.closest('.section-card');
         parentCard.querySelectorAll('.option-btn').forEach(btn => {
-            btn.classList.remove('selected-happy', 'selected-neutral', 'selected-bad');
+            btn.classList.remove('selected');
         });
-        if (type === 'happy') element.classList.add('selected-happy');
-        if (type === 'neutral') element.classList.add('selected-neutral');
-        if (type === 'bad') element.classList.add('selected-bad');
+        element.classList.add('selected');
     }
 
     function submitForm(event) {
@@ -411,7 +410,7 @@
         .then(() => {
             alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
             document.getElementById("evaluationForm").reset();
-            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected-happy', 'selected-neutral', 'selected-bad'));
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
         })
