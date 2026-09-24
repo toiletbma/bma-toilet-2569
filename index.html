@@ -66,7 +66,6 @@
             margin-bottom: 4px;
         }
 
-        /* ปรับสไตล์ปุ่มเลือกให้มีสีสันและโดดเด่นขึ้น */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -97,7 +96,7 @@
             color: #334155;
         }
 
-        /* สีสันเมื่อเลือกแต่ละปุ่ม */
+        /* สีสันปุ่มเลือกแบบชัดเจน */
         .option-btn.selected-happy {
             border-color: #10b981;
             background-color: #d1fae5;
@@ -154,7 +153,7 @@
         }
         textarea:focus { border-color: #198754; outline: none; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15); }
 
-        /* กล่องแสดงชื่อสถานที่ด้านล่างสุดก่อนปุ่มส่ง */
+        /* กล่องแสดงชื่อสถานที่ด้านล่างสุดตามสั่ง */
         .location-box {
             background-color: #e8f5e9;
             border: 2px solid #81c784;
@@ -189,7 +188,6 @@
         button[type="submit"]:hover { background-color: #157347; }
         button:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; }
 
-        /* เกณฑ์ KPI ด้านล่างสุด */
         .kpi-box {
             border: 2px solid #e0e0e0;
             border-radius: 12px;
@@ -289,7 +287,7 @@
             <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่ (ย้ายมาไว้ด้านล่างตามสั่ง) -->
+        <!-- กล่องแสดงชื่อสถานที่ (อยู่ด้านล่างสุดก่อนปุ่มส่ง) -->
         <div class="location-box" id="locationStatus">
             📍 สถานที่ใกล้เคียง (ในระยะ 100 ม.):<br><b>กำลังค้นหาชื่อสถานที่...</b>
         </div>
@@ -298,7 +296,6 @@
         <div id="loading">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
     </form>
 
-    <!-- เกณฑ์การประเมิน KPI -->
     <div class="kpi-box">
         <div class="kpi-title">เกณฑ์การประเมินสถานะ KPI</div>
         <div class="kpi-badges">
