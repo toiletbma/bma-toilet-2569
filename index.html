@@ -276,10 +276,9 @@
     
     let currentLat = null;
     let currentLng = null;
-    let rawThaiLocationName = ""; 
+    let rawThaiLocationName = ""; // เก็บชื่อไทยต้นฉบับไว้ส่งเข้า Sheet เสมอ
     let deviceId = "";
     let currentLang = 'th';
-    const translatedCache = {}; // แคชชื่อสถานที่ที่เคยแปลแล้ว
 
     const translations = {
         th: {
@@ -365,37 +364,40 @@
         }
     };
 
-    // ฟังก์ชันแปลชื่อสถานที่ภาษาไทยเป็นภาษาที่เลือก (EN/ZH) แบบ Real-time
-    async function translateLocation(name, targetLang) {
-        if (!name || targetLang === 'th') return name;
+    // พจนานุกรมแปลชื่อสถานที่ยอดฮิตอัตโนมัติ (หรือใช้ Google Translate API แปลสด)
+    function translateLocation(name, lang) {
+        if (!name || lang === 'th') return name;
         
-        const cacheKey = `${name}_${targetLang}`;
-        if (translatedCache[cacheKey]) return translatedCache[cacheKey];
+        // ตัวอย่างคำแปลสถานที่สำคัญ
+        const customDict = {
+            "ตลาดปลาวาฬ": { en: "Whale Market", zh: "鲸鱼市场" },
+            "ตลาดสิงหา": { en: "Singha Market", zh: "辛哈市场" },
+            "ตลาดคลองเตย": { en: "Klong Toei Market", zh: "孔提市场" },
+            "โรงพยาบาลเทพธารินทร์": { en: "Theptarin Hospital", zh: "德巴林医院" },
+            "โรงพยาบาลกล้วยน้ำไท": { en: "Kluaynamthai Hospital", zh: "格鲁纳泰医院" },
+            "อุทยานเบญจสิริ": { en: "Benjasiri Park", zh: "诗丽吉王后公园" },
+            "สวนลุมพินี": { en: "Lumpini Park", zh: "伦披尼公园" }
+        };
 
-        try {
-            const langCode = targetLang === 'zh' ? 'zh-CN' : 'en';
-            const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=th&tl=${langCode}&dt=t&q=${encodeURIComponent(name)}`;
-            
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            
-            if (data && data[0] && data[0][0] && data[0][0][0]) {
-                const result = data[0][0][0];
-                translatedCache[cacheKey] = result;
-                return result;
-            }
-        } catch (e) {
-            console.error("Translation error:", e);
+        if (customDict[name] && customDict[name][lang]) {
+            return customDict[name][lang];
         }
-        return name; // ถ้าแปลไม่ผ่าน ให้คืนค่าเดิมภาษาไทย
+
+        // ถ้าไม่มีในตารางเฉพาะ ให้แปลงคำหลักทั่วไปเบื้องต้น
+        let translated = name
+            .replace(/ตลาด/g, lang === 'en' ? 'Market ' : '市场')
+            .replace(/โรงพยาบาล/g, lang === 'en' ? 'Hospital ' : '医院')
+            .replace(/สวนสาธารณะ|สวน/g, lang === 'en' ? 'Park ' : '公园')
+            .replace(/วัด/g, lang === 'en' ? 'Temple ' : '寺庙')
+            .replace(/ศูนย์บริการสาธารณสุข/g, lang === 'en' ? 'Health Center ' : '卫生中心');
+
+        return translated;
     }
 
-    async function setLanguage(lang) {
+    function setLanguage(lang) {
         currentLang = lang;
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-        if (event && event.target) {
-            event.target.classList.add('active');
-        }
+        event.target.classList.add('active');
 
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
@@ -411,13 +413,14 @@
             }
         });
 
-        await updateDisplayLocation();
+        // อัปเดตชื่อสถานที่ตามภาษาที่เลือกทันที
+        updateDisplayLocation();
     }
 
-    async function updateDisplayLocation() {
+    function updateDisplayLocation() {
         const box = document.getElementById("locationStatus");
         if (rawThaiLocationName) {
-            const displayName = await translateLocation(rawThaiLocationName, currentLang);
+            const displayName = translateLocation(rawThaiLocationName, currentLang);
             box.innerHTML = `📍 ${translations[currentLang].loc_prefix}<br><b>${displayName}</b>`;
         }
     }
@@ -456,11 +459,11 @@
     function checkLocationInSheet(lat, lng) {
         fetch(`${SCRIPT_URL}?lat=${lat}&lng=${lng}`)
             .then(res => res.json())
-            .then(async data => {
+            .then(data => {
                 const box = document.getElementById("locationStatus");
                 if (data && data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง") {
-                    rawThaiLocationName = data.location; 
-                    await updateDisplayLocation();
+                    rawThaiLocationName = data.location; // เก็บชื่อไทยไว้หลังบ้าน
+                    updateDisplayLocation();
                     box.classList.remove("error");
                     document.getElementById("submitBtn").disabled = false;
                 } else {
@@ -497,6 +500,7 @@
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("loading").style.display = "block";
 
+        // ส่งชื่อภาษาไทย (rawThaiLocationName) เข้า Google Sheet เสมอ เพื่อให้ตารางเป็นภาษาไทย
         const formData = {
             lat: currentLat,
             lng: currentLng,
