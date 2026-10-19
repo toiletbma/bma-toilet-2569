@@ -200,8 +200,8 @@
 
 <div class="container">
     <div class="lang-switcher">
-        <button type="button" class="lang-btn active" onclick="setLanguage('th')">TH</button>
-        <button type="button" class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button type="button" class="lang-btn active" id="btn-th" onclick="setLanguage('th')">TH</button>
+        <button type="button" class="lang-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
     </div>
 
     <h2 data-i18n="title">ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
@@ -276,7 +276,6 @@
     let currentLat = null;
     let currentLng = null;
     let rawThaiLocationName = ""; 
-    let rawEnLocationName = "";
     let deviceId = "";
     let currentLang = 'th';
 
@@ -339,9 +338,13 @@
 
     function setLanguage(lang) {
         currentLang = lang;
-        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-        if (event && event.target) {
-            event.target.classList.add('active');
+        document.getElementById('btn-th').classList.remove('active');
+        document.getElementById('btn-en').classList.remove('active');
+        
+        if (lang === 'th') {
+            document.getElementById('btn-th').classList.add('active');
+        } else {
+            document.getElementById('btn-en').classList.add('active');
         }
 
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -364,9 +367,22 @@
     function updateDisplayLocation() {
         const box = document.getElementById("locationStatus");
         if (rawThaiLocationName) {
-            const displayName = (currentLang === 'th') ? rawThaiLocationName : (rawEnLocationName || rawThaiLocationName);
+            let displayName = rawThaiLocationName;
+            if (currentLang === 'en') {
+                displayName = translateToEnglish(rawThaiLocationName);
+            }
             box.innerHTML = `📍 ${translations[currentLang].loc_prefix}<br><b>${displayName}</b>`;
         }
+    }
+
+    function translateToEnglish(name) {
+        if (!name) return "";
+        let t = name;
+        t = t.replace(/ตลาด/g, "Market ").replace(/โรงพยาบาล/g, "Hospital ").replace(/วัด/g, "Wat ");
+        t = t.replace(/สวน/g, "Park ").replace(/ศูนย์บริการสาธารณสุข/g, "Health Center ");
+        t = t.replace(/สถานีตำรวจนครบาล/g, "Police Station ").replace(/สำนักงานเขต/g, "District Office ");
+        t = t.replace(/เขต/g, "District ");
+        return t.trim();
     }
 
     function getDeviceId() {
@@ -407,7 +423,6 @@
                 const box = document.getElementById("locationStatus");
                 if (data && data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง") {
                     rawThaiLocationName = data.location; 
-                    rawEnLocationName = data.locationEn || data.location; // รับค่าชื่อภาษาอังกฤษจากคอลัมน์ J ใน Sheet
                     updateDisplayLocation();
                     box.classList.remove("error");
                     document.getElementById("submitBtn").disabled = false;
