@@ -29,6 +29,30 @@
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .lang-switcher {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        .lang-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            color: #495057;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #198754;
+            color: white;
         }
 
         h2 {
@@ -94,29 +118,14 @@
             font-size: 15px;
         }
 
-        .btn-happy {
-            background-color: #d1fae5;
-            border-color: #34d399;
-        }
-        .btn-happy .option-label {
-            color: #065f46;
-        }
+        .btn-happy { background-color: #d1fae5; border-color: #34d399; }
+        .btn-happy .option-label { color: #065f46; }
 
-        .btn-neutral {
-            background-color: #fef3c7;
-            border-color: #fbbf24;
-        }
-        .btn-neutral .option-label {
-            color: #92400e;
-        }
+        .btn-neutral { background-color: #fef3c7; border-color: #fbbf24; }
+        .btn-neutral .option-label { color: #92400e; }
 
-        .btn-bad {
-            background-color: #fee2e2;
-            border-color: #f87171;
-        }
-        .btn-bad .option-label {
-            color: #991b1b;
-        }
+        .btn-bad { background-color: #fee2e2; border-color: #f87171; }
+        .btn-bad .option-label { color: #991b1b; }
 
         .option-btn.selected {
             box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
@@ -126,9 +135,7 @@
         .btn-neutral.selected { border-color: #d97706; }
         .btn-bad.selected { border-color: #dc2626; }
 
-        .form-group { 
-            margin-bottom: 20px; 
-        }
+        .form-group { margin-bottom: 20px; }
         
         label { 
             display: block; 
@@ -192,73 +199,75 @@
 <body>
 
 <div class="container">
-    <h2>ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
+    <div class="lang-switcher">
+        <button type="button" class="lang-btn active" onclick="setLanguage('th')">TH</button>
+        <button type="button" class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button type="button" class="lang-btn" onclick="setLanguage('zh')">中文</button>
+    </div>
+
+    <h2 data-i18n="title">ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.</h2>
     
     <form id="evaluationForm" onsubmit="submitForm(event)">
         
-        <!-- ส่วนที่ 1: ความสะอาด -->
         <div class="section-card">
-            <div class="section-title">1. ด้านความสะอาด (Healthy)</div>
+            <div class="section-title" data-i18n="sec1_title">1. ด้านความสะอาด (Healthy)</div>
             <ul class="criteria-list">
-                <li>ความสะอาดของห้องน้ำ</li>
-                <li>อุปกรณ์ครบและใช้งานได้ดี</li>
-                <li>ห้องน้ำไม่มีกลิ่นเหม็น</li>
+                <li data-i18n="sec1_c1">ความสะอาดของห้องน้ำ</li>
+                <li data-i18n="sec1_c2">อุปกรณ์ครบและใช้งานได้ดี</li>
+                <li data-i18n="sec1_c3">ห้องน้ำไม่มีกลิ่นเหม็น</li>
             </ul>
             <div class="options-grid">
                 <label class="option-btn btn-happy" onclick="selectOption(this, 'healthScore', '10')">
-                    <span class="option-label">พอใจมาก</span>
+                    <span class="option-label" data-i18n="opt_happy">พอใจมาก</span>
                     <input type="radio" name="health" value="10" required>
                 </label>
                 <label class="option-btn btn-neutral" onclick="selectOption(this, 'healthScore', '5')">
-                    <span class="option-label">ปานกลาง</span>
+                    <span class="option-label" data-i18n="opt_neutral">ปานกลาง</span>
                     <input type="radio" name="health" value="5">
                 </label>
                 <label class="option-btn btn-bad" onclick="selectOption(this, 'healthScore', '0')">
-                    <span class="option-label">ควรปรับปรุง</span>
+                    <span class="option-label" data-i18n="opt_bad">ควรปรับปรุง</span>
                     <input type="radio" name="health" value="0">
                 </label>
             </div>
             <input type="hidden" id="healthScore" required>
         </div>
 
-        <!-- ส่วนที่ 2: ความปลอดภัย -->
         <div class="section-card">
-            <div class="section-title">2. ด้านความปลอดภัย (Safety)</div>
+            <div class="section-title" data-i18n="sec2_title">2. ด้านความปลอดภัย (Safety)</div>
             <ul class="criteria-list">
-                <li>มีแสงสว่างเพียงพอ</li>
-                <li>พื้นห้องน้ำแห้ง</li>
-                <li>รู้สึกปลอดภัยขณะใช้บริการ</li>
+                <li data-i18n="sec2_c1">มีแสงสว่างเพียงพอ</li>
+                <li data-i18n="sec2_c2">พื้นห้องน้ำแห้ง</li>
+                <li data-i18n="sec2_c3">รู้สึกปลอดภัยขณะใช้บริการ</li>
             </ul>
             <div class="options-grid">
                 <label class="option-btn btn-happy" onclick="selectOption(this, 'safetyScore', '10')">
-                    <span class="option-label">พอใจมาก</span>
+                    <span class="option-label" data-i18n="opt_happy">พอใจมาก</span>
                     <input type="radio" name="safety" value="10" required>
                 </label>
                 <label class="option-btn btn-neutral" onclick="selectOption(this, 'safetyScore', '5')">
-                    <span class="option-label">ปานกลาง</span>
+                    <span class="option-label" data-i18n="opt_neutral">ปานกลาง</span>
                     <input type="radio" name="safety" value="5">
                 </label>
                 <label class="option-btn btn-bad" onclick="selectOption(this, 'safetyScore', '0')">
-                    <span class="option-label">ควรปรับปรุง</span>
+                    <span class="option-label" data-i18n="opt_bad">ควรปรับปรุง</span>
                     <input type="radio" name="safety" value="0">
                 </label>
             </div>
             <input type="hidden" id="safetyScore" required>
         </div>
 
-        <!-- ข้อเสนอแนะ -->
         <div class="form-group">
-            <label for="comment">ข้อเสนอแนะเพิ่มเติม</label>
-            <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
+            <label for="comment" data-i18n="comment_label">ข้อเสนอแนะเพิ่มเติม</label>
+            <textarea id="comment" data-i18n-placeholder="comment_placeholder" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
         </div>
 
-        <!-- กล่องแสดงชื่อสถานที่ -->
         <div class="location-box" id="locationStatus">
-            📍 สถานที่ใกล้เคียง (ในระยะ 100 ม.):<br><b>กำลังค้นหาชื่อสถานที่...</b>
+            📍 <span data-i18n="loc_prefix">สถานที่ใกล้เคียง:</span><br><b id="locText" data-i18n="loc_loading">กำลังค้นหาชื่อสถานที่...</b>
         </div>
 
-        <button type="submit" id="submitBtn" disabled>ส่งแบบประเมิน</button>
-        <div id="loading">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
+        <button type="submit" id="submitBtn" disabled data-i18n="submit_btn">ส่งแบบประเมิน</button>
+        <div id="loading" data-i18n="loading_text">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
     </form>
 </div>
 
@@ -267,8 +276,154 @@
     
     let currentLat = null;
     let currentLng = null;
-    let resolvedLocationName = "";
+    let rawThaiLocationName = ""; // เก็บชื่อไทยต้นฉบับไว้ส่งเข้า Sheet เสมอ
     let deviceId = "";
+    let currentLang = 'th';
+
+    const translations = {
+        th: {
+            title: "ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.",
+            sec1_title: "1. ด้านความสะอาด (Healthy)",
+            sec1_c1: "ความสะอาดของห้องน้ำ",
+            sec1_c2: "อุปกรณ์ครบและใช้งานได้ดี",
+            sec1_c3: "ห้องน้ำไม่มีกลิ่นเหม็น",
+            sec2_title: "2. ด้านความปลอดภัย (Safety)",
+            sec2_c1: "มีแสงสว่างเพียงพอ",
+            sec2_c2: "พื้นห้องน้ำแห้ง",
+            sec2_c3: "รู้สึกปลอดภัยขณะใช้บริการ",
+            opt_happy: "พอใจมาก",
+            opt_neutral: "ปานกลาง",
+            opt_bad: "ควรปรับปรุง",
+            comment_label: "ข้อเสนอแนะเพิ่มเติม",
+            comment_placeholder: "พิมพ์ข้อเสนอแนะ (ถ้ามี)...",
+            loc_prefix: "สถานที่ใกล้เคียง:",
+            loc_loading: "กำลังค้นหาชื่อสถานที่...",
+            loc_notfound: "ไม่พบสถานที่ใกล้เคียงในระบบ",
+            loc_error: "เกิดข้อผิดพลาดในการตรวจสอบพิกัด",
+            loc_nogps: "ไม่สามารถเข้าถึงพิกัด GPS ได้<br><b>ไม่อนุญาตให้ส่งแบบประเมิน</b>",
+            loc_nobrowser: "เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง",
+            submit_btn: "ส่งแบบประเมิน",
+            loading_text: "⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...",
+            success_msg: "✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!",
+            error_msg: "❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง",
+            alert_nogps: "❌ ไม่พบพิกัด GPS กรุณาเปิดตำแหน่งและลองใหม่อีกครั้ง"
+        },
+        en: {
+            title: "BMA Public Toilet Satisfaction Evaluation",
+            sec1_title: "1. Cleanliness (Healthy)",
+            sec1_c1: "Cleanliness of the restroom",
+            sec1_c2: "Facilities are fully equipped and functional",
+            sec1_c3: "No unpleasant odors",
+            sec2_title: "2. Safety",
+            sec2_c1: "Adequate lighting",
+            sec2_c2: "Dry floor",
+            sec2_c3: "Feeling safe while using the service",
+            opt_happy: "Very Satisfied",
+            opt_neutral: "Neutral",
+            opt_bad: "Needs Improvement",
+            comment_label: "Additional Suggestions",
+            comment_placeholder: "Type your suggestions (if any)...",
+            loc_prefix: "Nearest Location:",
+            loc_loading: "Searching for location...",
+            loc_notfound: "No nearby location found in the system",
+            loc_error: "Error checking coordinates",
+            loc_nogps: "Unable to access GPS coordinates<br><b>Submission not allowed</b>",
+            loc_nobrowser: "Browser does not support geolocation",
+            submit_btn: "Submit Evaluation",
+            loading_text: "⏳ Saving data, please wait...",
+            success_msg: "✅ Evaluation submitted successfully!",
+            error_msg: "❌ Error submitting data, please try again",
+            alert_nogps: "❌ GPS coordinates not found. Please enable location and try again."
+        },
+        zh: {
+            title: "曼谷公共厕所满意度评估",
+            sec1_title: "1. 清洁卫生 (Healthy)",
+            sec1_c1: "厕所清洁度",
+            sec1_c2: "设施齐全且完好可用",
+            sec1_c3: "无异味",
+            sec2_title: "2. 安全保障 (Safety)",
+            sec2_c1: "照明充足",
+            sec2_c2: "地面干爽",
+            sec2_c3: "使用时感到安全",
+            opt_happy: "非常满意",
+            opt_neutral: "一般",
+            opt_bad: "需要改进",
+            comment_label: "其他建议",
+            comment_placeholder: "请输入建议（如有）...",
+            loc_prefix: "附近地点:",
+            loc_loading: "正在查找位置...",
+            loc_notfound: "系统中未找到附近地点",
+            loc_error: "检查坐标时出错",
+            loc_nogps: "无法获取GPS坐标<br><b>不允许提交评估</b>",
+            loc_nobrowser: "浏览器不支持地理定位",
+            submit_btn: "提交评估",
+            loading_text: "⏳ 正在保存数据，请稍候...",
+            success_msg: "✅ 评估提交成功！",
+            error_msg: "❌ 提交数据时出错，请重试",
+            alert_nogps: "❌ 未找到GPS坐标，请开启定位后重试。"
+        }
+    };
+
+    // พจนานุกรมแปลชื่อสถานที่ยอดฮิตอัตโนมัติ (หรือใช้ Google Translate API แปลสด)
+    function translateLocation(name, lang) {
+        if (!name || lang === 'th') return name;
+        
+        // ตัวอย่างคำแปลสถานที่สำคัญ
+        const customDict = {
+            "ตลาดปลาวาฬ": { en: "Whale Market", zh: "鲸鱼市场" },
+            "ตลาดสิงหา": { en: "Singha Market", zh: "辛哈市场" },
+            "ตลาดคลองเตย": { en: "Klong Toei Market", zh: "孔提市场" },
+            "โรงพยาบาลเทพธารินทร์": { en: "Theptarin Hospital", zh: "德巴林医院" },
+            "โรงพยาบาลกล้วยน้ำไท": { en: "Kluaynamthai Hospital", zh: "格鲁纳泰医院" },
+            "อุทยานเบญจสิริ": { en: "Benjasiri Park", zh: "诗丽吉王后公园" },
+            "สวนลุมพินี": { en: "Lumpini Park", zh: "伦披尼公园" }
+        };
+
+        if (customDict[name] && customDict[name][lang]) {
+            return customDict[name][lang];
+        }
+
+        // ถ้าไม่มีในตารางเฉพาะ ให้แปลงคำหลักทั่วไปเบื้องต้น
+        let translated = name
+            .replace(/ตลาด/g, lang === 'en' ? 'Market ' : '市场')
+            .replace(/โรงพยาบาล/g, lang === 'en' ? 'Hospital ' : '医院')
+            .replace(/สวนสาธารณะ|สวน/g, lang === 'en' ? 'Park ' : '公园')
+            .replace(/วัด/g, lang === 'en' ? 'Temple ' : '寺庙')
+            .replace(/ศูนย์บริการสาธารณสุข/g, lang === 'en' ? 'Health Center ' : '卫生中心');
+
+        return translated;
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) {
+                el.innerHTML = translations[lang][key];
+            }
+        });
+
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[lang][key]) {
+                el.placeholder = translations[lang][key];
+            }
+        });
+
+        // อัปเดตชื่อสถานที่ตามภาษาที่เลือกทันที
+        updateDisplayLocation();
+    }
+
+    function updateDisplayLocation() {
+        const box = document.getElementById("locationStatus");
+        if (rawThaiLocationName) {
+            const displayName = translateLocation(rawThaiLocationName, currentLang);
+            box.innerHTML = `📍 ${translations[currentLang].loc_prefix}<br><b>${displayName}</b>`;
+        }
+    }
 
     function getDeviceId() {
         let id = localStorage.getItem('bma_toilet_device_id');
@@ -289,13 +444,13 @@
                 checkLocationInSheet(currentLat, currentLng);
             }, function(error) {
                 const box = document.getElementById("locationStatus");
-                box.innerHTML = "📍 ไม่สามารถเข้าถึงพิกัด GPS ได้<br><b>ไม่อนุญาตให้ส่งแบบประเมิน</b>";
+                box.innerHTML = "📍 " + translations[currentLang].loc_nogps;
                 box.classList.add("error");
                 document.getElementById("submitBtn").disabled = true;
             }, { enableHighAccuracy: true, timeout: 15000 });
         } else {
             const box = document.getElementById("locationStatus");
-            box.innerHTML = "📍 เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง";
+            box.innerHTML = "📍 " + translations[currentLang].loc_nobrowser;
             box.classList.add("error");
             document.getElementById("submitBtn").disabled = true;
         }
@@ -307,19 +462,19 @@
             .then(data => {
                 const box = document.getElementById("locationStatus");
                 if (data && data.location && data.location !== "ไม่พบสถานที่ใกล้เคียง") {
-                    resolvedLocationName = data.location;
-                    box.innerHTML = `📍 สถานที่ใกล้เคียง:<br><b>${resolvedLocationName}</b>`;
+                    rawThaiLocationName = data.location; // เก็บชื่อไทยไว้หลังบ้าน
+                    updateDisplayLocation();
                     box.classList.remove("error");
                     document.getElementById("submitBtn").disabled = false;
                 } else {
-                    box.innerHTML = `📍 ไม่พบสถานที่ใกล้เคียงในระบบ`;
+                    box.innerHTML = `📍 ${translations[currentLang].loc_notfound}`;
                     box.classList.add("error");
                     document.getElementById("submitBtn").disabled = true;
                 }
             })
             .catch(err => {
                 const box = document.getElementById("locationStatus");
-                box.innerHTML = "📍 เกิดข้อผิดพลาดในการตรวจสอบพิกัด";
+                box.innerHTML = "📍 " + translations[currentLang].loc_error;
                 box.classList.add("error");
                 document.getElementById("submitBtn").disabled = true;
             });
@@ -338,13 +493,14 @@
         event.preventDefault();
 
         if (currentLat === null || currentLng === null) {
-            alert("❌ ไม่พบพิกัด GPS กรุณาเปิดตำแหน่งและลองใหม่อีกครั้ง");
+            alert(translations[currentLang].alert_nogps);
             return;
         }
 
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("loading").style.display = "block";
 
+        // ส่งชื่อภาษาไทย (rawThaiLocationName) เข้า Google Sheet เสมอ เพื่อให้ตารางเป็นภาษาไทย
         const formData = {
             lat: currentLat,
             lng: currentLng,
@@ -363,14 +519,14 @@
             body: JSON.stringify(formData)
         })
         .then(() => {
-            alert("✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!");
+            alert(translations[currentLang].success_msg);
             document.getElementById("evaluationForm").reset();
             document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
         })
         .catch(error => {
-            alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง");
+            alert(translations[currentLang].error_msg);
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("loading").style.display = "none";
         });
