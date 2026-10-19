@@ -169,11 +169,25 @@
             margin-bottom: 20px;
             text-align: center;
             font-size: 16px;
+            line-height: 1.5;
         }
         .location-box.error {
             background-color: #ffebee;
             border-color: #e57373;
             color: #b71c1c;
+        }
+
+        .retry-btn {
+            margin-top: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
         }
 
         button[type="submit"] {
@@ -241,216 +255,4 @@
                 <li data-i18n="sec2_c3">รู้สึกปลอดภัยขณะใช้บริการ</li>
             </ul>
             <div class="options-grid">
-                <label class="option-btn btn-happy" onclick="selectOption(this, 'safetyScore', '10')">
-                    <span class="option-label" data-i18n="opt_happy">พอใจมาก</span>
-                    <input type="radio" name="safety" value="10" required>
-                </label>
-                <label class="option-btn btn-neutral" onclick="selectOption(this, 'safetyScore', '5')">
-                    <span class="option-label" data-i18n="opt_neutral">ปานกลาง</span>
-                    <input type="radio" name="safety" value="5">
-                </label>
-                <label class="option-btn btn-bad" onclick="selectOption(this, 'safetyScore', '0')">
-                    <span class="option-label" data-i18n="opt_bad">ควรปรับปรุง</span>
-                    <input type="radio" name="safety" value="0">
-                </label>
-            </div>
-            <input type="hidden" id="safetyScore" required>
-        </div>
-
-        <div class="form-group">
-            <label for="comment" data-i18n="comment_label">ข้อเสนอแนะเพิ่มเติม</label>
-            <textarea id="comment" data-i18n-placeholder="comment_placeholder" placeholder="พิมพ์ข้อเสนอแนะ (ถ้ามี)..."></textarea>
-        </div>
-
-        <div class="location-box" id="locationStatus">
-            📍 <span data-i18n="loc_prefix">สถานที่ใกล้เคียง:</span><br><b id="locText" data-i18n="loc_loading">กำลังค้นหาชื่อสถานที่...</b>
-        </div>
-
-        <button type="submit" id="submitBtn" disabled data-i18n="submit_btn">ส่งแบบประเมิน</button>
-        <div id="loading" data-i18n="loading_text">⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
-    </form>
-</div>
-
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgJRg_LOogJ7A9Xdg3eOfFUNe7SnoNKshX30z0Ts6JJtMsC5xpT-fNgOO0bp5kec5B0g/exec";
-    
-    let currentLat = null;
-    let currentLng = null;
-    let rawThaiLocationName = ""; 
-    let deviceId = "";
-    let currentLang = 'th';
-    const translatedCache = {}; // แคชชื่อสถานที่ที่เคยแปลแล้ว
-
-    const translations = {
-        th: {
-            title: "ประเมินความพึงพอใจห้องน้ำสาธารณะ กทม.",
-            sec1_title: "1. ด้านความสะอาด (Healthy)",
-            sec1_c1: "ความสะอาดของห้องน้ำ",
-            sec1_c2: "อุปกรณ์ครบและใช้งานได้ดี",
-            sec1_c3: "ห้องน้ำไม่มีกลิ่นเหม็น",
-            sec2_title: "2. ด้านความปลอดภัย (Safety)",
-            sec2_c1: "มีแสงสว่างเพียงพอ",
-            sec2_c2: "พื้นห้องน้ำแห้ง",
-            sec2_c3: "รู้สึกปลอดภัยขณะใช้บริการ",
-            opt_happy: "พอใจมาก",
-            opt_neutral: "ปานกลาง",
-            opt_bad: "ควรปรับปรุง",
-            comment_label: "ข้อเสนอแนะเพิ่มเติม",
-            comment_placeholder: "พิมพ์ข้อเสนอแนะ (ถ้ามี)...",
-            loc_prefix: "สถานที่ใกล้เคียง:",
-            loc_loading: "กำลังค้นหาชื่อสถานที่...",
-            loc_notfound: "ไม่พบสถานที่ใกล้เคียงในระบบ",
-            loc_error: "เกิดข้อผิดพลาดในการตรวจสอบพิกัด",
-            loc_nogps: "ไม่สามารถเข้าถึงพิกัด GPS ได้<br><b>ไม่อนุญาตให้ส่งแบบประเมิน</b>",
-            loc_nobrowser: "เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง",
-            submit_btn: "ส่งแบบประเมิน",
-            loading_text: "⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...",
-            success_msg: "✅ ส่งแบบประเมินสำเร็จเรียบร้อยแล้วครับ!",
-            error_msg: "❌ เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง",
-            alert_nogps: "❌ ไม่พบพิกัด GPS กรุณาเปิดตำแหน่งและลองใหม่อีกครั้ง"
-        },
-        en: {
-            title: "BMA Public Toilet Satisfaction Evaluation",
-            sec1_title: "1. Cleanliness (Healthy)",
-            sec1_c1: "Cleanliness of the restroom",
-            sec1_c2: "Facilities are fully equipped and functional",
-            sec1_c3: "No unpleasant odors",
-            sec2_title: "2. Safety",
-            sec2_c1: "Adequate lighting",
-            sec2_c2: "Dry floor",
-            sec2_c3: "Feeling safe while using the service",
-            opt_happy: "Very Satisfied",
-            opt_neutral: "Neutral",
-            opt_bad: "Needs Improvement",
-            comment_label: "Additional Suggestions",
-            comment_placeholder: "Type your suggestions (if any)...",
-            loc_prefix: "Nearest Location:",
-            loc_loading: "Searching for location...",
-            loc_notfound: "No nearby location found in the system",
-            loc_error: "Error checking coordinates",
-            loc_nogps: "Unable to access GPS coordinates<br><b>Submission not allowed</b>",
-            loc_nobrowser: "Browser does not support geolocation",
-            submit_btn: "Submit Evaluation",
-            loading_text: "⏳ Saving data, please wait...",
-            success_msg: "✅ Evaluation submitted successfully!",
-            error_msg: "❌ Error submitting data, please try again",
-            alert_nogps: "❌ GPS coordinates not found. Please enable location and try again."
-        },
-        zh: {
-            title: "曼谷公共厕所满意度评估",
-            sec1_title: "1. 清洁卫生 (Healthy)",
-            sec1_c1: "厕所清洁度",
-            sec1_c2: "设施齐全且完好可用",
-            sec1_c3: "无异味",
-            sec2_title: "2. 安全保障 (Safety)",
-            sec2_c1: "照明充足",
-            sec2_c2: "地面干爽",
-            sec2_c3: "使用时感到安全",
-            opt_happy: "非常满意",
-            opt_neutral: "一般",
-            opt_bad: "需要改进",
-            comment_label: "其他建议",
-            comment_placeholder: "请输入建议（如有）...",
-            loc_prefix: "附近地点:",
-            loc_loading: "正在查找位置...",
-            loc_notfound: "系统中未找到附近地点",
-            loc_error: "检查坐标时出错",
-            loc_nogps: "无法获取GPS坐标<br><b>不允许提交评估</b>",
-            loc_nobrowser: "浏览器不支持地理定位",
-            submit_btn: "提交评估",
-            loading_text: "⏳ 正在保存数据，请稍候...",
-            success_msg: "✅ 评估提交成功！",
-            error_msg: "❌ 提交数据时出错，请重试",
-            alert_nogps: "❌ 未找到GPS坐标，请开启定位后重试。"
-        }
-    };
-
-    // ฟังก์ชันแปลชื่อสถานที่ภาษาไทยเป็นภาษาที่เลือก (EN/ZH) แบบ Real-time
-    async function translateLocation(name, targetLang) {
-        if (!name || targetLang === 'th') return name;
-        
-        const cacheKey = `${name}_${targetLang}`;
-        if (translatedCache[cacheKey]) return translatedCache[cacheKey];
-
-        try {
-            const langCode = targetLang === 'zh' ? 'zh-CN' : 'en';
-            const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=th&tl=${langCode}&dt=t&q=${encodeURIComponent(name)}`;
-            
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            
-            if (data && data[0] && data[0][0] && data[0][0][0]) {
-                const result = data[0][0][0];
-                translatedCache[cacheKey] = result;
-                return result;
-            }
-        } catch (e) {
-            console.error("Translation error:", e);
-        }
-        return name; // ถ้าแปลไม่ผ่าน ให้คืนค่าเดิมภาษาไทย
-    }
-
-    async function setLanguage(lang) {
-        currentLang = lang;
-        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-        if (event && event.target) {
-            event.target.classList.add('active');
-        }
-
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[lang][key]) {
-                el.innerHTML = translations[lang][key];
-            }
-        });
-
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            if (translations[lang][key]) {
-                el.placeholder = translations[lang][key];
-            }
-        });
-
-        await updateDisplayLocation();
-    }
-
-    async function updateDisplayLocation() {
-        const box = document.getElementById("locationStatus");
-        if (rawThaiLocationName) {
-            const displayName = await translateLocation(rawThaiLocationName, currentLang);
-            box.innerHTML = `📍 ${translations[currentLang].loc_prefix}<br><b>${displayName}</b>`;
-        }
-    }
-
-    function getDeviceId() {
-        let id = localStorage.getItem('bma_toilet_device_id');
-        if (!id) {
-            id = 'DEV-' + Math.random().toString(36).substring(2, 9).toUpperCase() + '-' + Date.now();
-            localStorage.setItem('bma_toilet_device_id', id);
-        }
-        return id;
-    }
-
-    window.onload = function() {
-        deviceId = getDeviceId();
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                currentLat = position.coords.latitude;
-                currentLng = position.coords.longitude;
-                checkLocationInSheet(currentLat, currentLng);
-            }, function(error) {
-                const box = document.getElementById("locationStatus");
-                box.innerHTML = "📍 " + translations[currentLang].loc_nogps;
-                box.classList.add("error");
-                document.getElementById("submitBtn").disabled = true;
-            }, { enableHighAccuracy: true, timeout: 15000 });
-        } else {
-            const box = document.getElementById("locationStatus");
-            box.innerHTML = "📍 " + translations[currentLang].loc_nobrowser;
-            box.classList.add("error");
-            document.getElementById("submitBtn").disabled = true;
-        }
-    };
-
-    function checkLocation
+                <label class="option-btn btn-happy
